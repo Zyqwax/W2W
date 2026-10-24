@@ -1,14 +1,12 @@
 {
   "name": "seyir",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "migrate:firestore:movies": "node scripts/migrate-firestore-movie-cache.mjs",
-    "migrate:firestore:lists": "node scripts/migrate-firestore-lists.mjs"
+    "lint": "eslint"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -22,9 +20,13 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.2.4",
     "firebase-admin": "^13.10.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
   }
 }
