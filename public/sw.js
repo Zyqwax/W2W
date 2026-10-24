@@ -1,9 +1,10 @@
-const CACHE_NAME = "movie-tracker-cache-v1";
+const CACHE_NAME = "seyir-cache-v1";
 const OFFLINE_URL = "/";
 
 const ASSETS_TO_CACHE = [
   "/",
   "/manifest.json",
+  "/icon.svg",
   "/icon-192x192.png",
   "/icon-512x512.png"
 ];
@@ -63,7 +64,7 @@ self.addEventListener("fetch", (event) => {
           // Only cache successful image responses
           if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
-            caches.open("movie-tracker-images-v1").then((cache) => {
+            caches.open("seyir-images-v1").then((cache) => {
               cache.put(event.request, responseToCache);
             });
           }

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Arka plan: koyu mürekkep, yuvarlatılmış köşeler (uygulama ikonu) -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#14120F"/>
+
+  <!-- Film şeridi -->
+  <rect x="92" y="136" width="328" height="240" rx="30" fill="#F5EFE3"/>
+
+  <!-- Perforasyonlar (üst ve alt sıra) -->
+  <g fill="#14120F">
+    <rect x="113" y="152" width="22" height="14" rx="4"/>
+    <rect x="157" y="152" width="22" height="14" rx="4"/>
+    <rect x="201" y="152" width="22" height="14" rx="4"/>
+    <rect x="245" y="152" width="22" height="14" rx="4"/>
+    <rect x="289" y="152" width="22" height="14" rx="4"/>
+    <rect x="333" y="152" width="22" height="14" rx="4"/>
+    <rect x="377" y="152" width="22" height="14" rx="4"/>
+
+    <rect x="113" y="340" width="22" height="14" rx="4"/>
+    <rect x="157" y="340" width="22" height="14" rx="4"/>
+    <rect x="201" y="340" width="22" height="14" rx="4"/>
+    <rect x="245" y="340" width="22" height="14" rx="4"/>
+    <rect x="289" y="340" width="22" height="14" rx="4"/>
+    <rect x="333" y="340" width="22" height="14" rx="4"/>
+    <rect x="377" y="340" width="22" height="14" rx="4"/>
+  </g>
+
+  <!-- Ortadaki kare: izlendi işareti -->
+  <rect x="150" y="186" width="212" height="144" rx="14" fill="#F2B33D"/>
+  <path d="M205 258 L240 293 L309 222" fill="none" stroke="#14120F" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

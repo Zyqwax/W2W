@@ -2,6 +2,7 @@
 
 import { Film, Home, LayoutList, LogOut, Menu, MessageSquare, Search, User, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
@@ -81,7 +82,7 @@ function MobileSidebar({ pathname, user, language, hasUnread, isOpen, onClose, o
         )}
       />
       <aside
-        id="movie-tracker-sidebar"
+        id="seyir-sidebar"
         aria-label={t("nav.sidebar")}
         aria-hidden={!isOpen}
         className={clsx(
@@ -90,7 +91,10 @@ function MobileSidebar({ pathname, user, language, hasUnread, isOpen, onClose, o
         )}
       >
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.06] px-2">
-          <span className="font-syne text-base font-bold text-text">Movie Track</span>
+          <div className="flex items-center gap-2.5">
+            <Image src="/icon.svg" alt="Seyir" width={28} height={28} className="h-7 w-7 rounded-lg" priority />
+            <span className="font-syne text-base font-bold text-text">Seyir</span>
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -221,9 +225,9 @@ export default function BottomNav() {
     <>
       <header className="fixed inset-x-0 top-0 z-50 hidden h-14 items-center border-b border-border bg-surface px-6 shadow-sm lg:flex">
         <div className="flex h-full w-full items-center gap-6">
-          <Link href="/" aria-label={t("nav.homeLink")} className="flex shrink-0 items-center gap-2 text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-            <Film size={20} className="text-accent" aria-hidden="true" />
-            <span className="font-syne text-lg font-bold">Movie Track</span>
+          <Link href="/" aria-label={t("nav.homeLink")} className="flex shrink-0 items-center gap-2.5 text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+            <Image src="/icon.svg" alt="Seyir" width={28} height={28} className="h-7 w-7 rounded-lg" priority />
+            <span className="font-syne text-lg font-bold">Seyir</span>
           </Link>
 
           <nav className="flex flex-1 items-center justify-center gap-1" aria-label={t("nav.main")}>
@@ -287,7 +291,7 @@ export default function BottomNav() {
         className="fixed left-4 top-3 z-[61] grid h-9 w-9 place-items-center rounded-[var(--radius-sm)] border border-white/[0.1] bg-white/[0.08] text-text backdrop-blur-sm transition-colors hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-        aria-controls="movie-tracker-sidebar"
+        aria-controls="seyir-sidebar"
         aria-expanded={mobileMenuOpen}
       >
         <Menu className={clsx("absolute transition-all duration-200 motion-reduce:transition-none", mobileMenuOpen ? "scale-75 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100")} size={20} aria-hidden="true" />

@@ -1,10 +1,10 @@
-# Movie Track — Proje Tanıtımı
+# Seyir — Proje Tanıtımı
 
 Bu dosya, projeye yeni katılan bir agent veya geliştirici için mevcut kaynak koddan çıkarılmış proje haritasıdır. Route, veri modeli ve davranış açıklamaları mevcut checkout'taki kodu yansıtır.
 
 ## 1. Projenin amacı
 
-Movie Track; kullanıcıların TMDB üzerinden film keşfetmesini, filmleri izleme listesine eklemesini, izlediklerini ve izleme geçmişini kaydetmesini, puan/yorum vermesini, özel listeler oluşturmasını ve profilini paylaşmasını sağlayan mobil öncelikli bir Next.js uygulamasıdır.
+Seyir; kullanıcıların TMDB üzerinden film keşfetmesini, filmleri izleme listesine eklemesini, izlediklerini ve izleme geçmişini kaydetmesini, puan/yorum vermesini, özel listeler oluşturmasını ve profilini paylaşmasını sağlayan mobil öncelikli bir Next.js uygulamasıdır.
 
 Ana özellikler:
 

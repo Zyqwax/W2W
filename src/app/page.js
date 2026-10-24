@@ -40,16 +40,16 @@ export default function Home() {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState(() =>
-    typeof window !== "undefined" ? sessionStorage.getItem("movieTracker_homeTab") || "wishlist" : "wishlist",
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("seyir_homeTab") || sessionStorage.getItem("movieTracker_homeTab") || "wishlist"
+      : "wishlist",
   );
 
-  const [sortKey, setSortKey] = useState(() =>
-    typeof window !== "undefined"
-      ? SORT_VALUES.wishlist.includes(sessionStorage.getItem("movieTracker_homeSortKey"))
-        ? sessionStorage.getItem("movieTracker_homeSortKey")
-        : "addedAt_desc"
-      : "addedAt_desc",
-  );
+  const [sortKey, setSortKey] = useState(() => {
+    if (typeof window === "undefined") return "addedAt_desc";
+    const saved = sessionStorage.getItem("seyir_homeSortKey") || sessionStorage.getItem("movieTracker_homeSortKey");
+    return SORT_VALUES.wishlist.includes(saved) ? saved : "addedAt_desc";
+  });
 
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef(null);
@@ -98,7 +98,7 @@ export default function Home() {
 
   const changeTab = (tab) => {
     setActiveTab(tab);
-    sessionStorage.setItem("movieTracker_homeTab", tab);
+    sessionStorage.setItem("seyir_homeTab", tab);
   };
 
   const shuffle = () => {
@@ -111,7 +111,7 @@ export default function Home() {
 
   const changeSort = (value) => {
     setSortKey(value);
-    sessionStorage.setItem("movieTracker_homeSortKey", value);
+    sessionStorage.setItem("seyir_homeSortKey", value);
     setSortOpen(false);
   };
 

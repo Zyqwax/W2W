@@ -1,4 +1,5 @@
 import { Film } from "lucide-react";
+import Image from "next/image";
 
 function GoogleMark() {
   return (
@@ -20,8 +21,8 @@ export default function LoginView({ onLogin, t }) {
         <div className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-accent-alt/10 blur-3xl" />
         <div className="relative z-10 flex w-full flex-col justify-between p-10 xl:p-16">
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-[var(--radius-md)] bg-accent brand-mark-stripes font-syne text-sm font-extrabold text-bg">MT</span>
-            <span className="font-syne text-lg font-bold text-text">Movie Tracker</span>
+            <Image src="/icon.svg" alt="Seyir Logo" width={44} height={44} className="h-11 w-11 rounded-xl" priority />
+            <span className="font-syne text-lg font-bold text-text">Seyir</span>
           </div>
           <div className="max-w-lg">
             <Film size={42} className="mb-6 text-accent" strokeWidth={1.5} />
@@ -36,8 +37,8 @@ export default function LoginView({ onLogin, t }) {
 
       <section className="flex min-h-dvh flex-col px-5 py-6 sm:px-8 lg:px-12">
         <div className="flex items-center gap-3 lg:hidden">
-          <span className="grid h-10 w-10 place-items-center rounded-[var(--radius-md)] bg-accent brand-mark-stripes font-syne text-xs font-extrabold text-bg">MT</span>
-          <span className="font-syne text-base font-bold text-text">Movie Tracker</span>
+          <Image src="/icon.svg" alt="Seyir Logo" width={40} height={40} className="h-10 w-10 rounded-xl" priority />
+          <span className="font-syne text-base font-bold text-text">Seyir</span>
         </div>
 
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-14">

@@ -14,20 +14,72 @@ const syne = Syne({
   variable: "--font-syne-family",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://seyir.app");
+
 export const metadata = {
-  title: "Movie Tracker",
-  description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Seyir - Film Takip ve Keşif",
+    template: "%s | Seyir",
+  },
+  description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin, listeler oluşturun ve arkadaşlarınızla film önerileri paylaşın.",
+  applicationName: "Seyir",
+  keywords: [
+    "film takip",
+    "film listesi",
+    "izleme listesi",
+    "film önerisi",
+    "sinema",
+    "movie tracker",
+    "watchlist",
+    "seyir",
+  ],
+  authors: [{ name: "Seyir" }],
+  creator: "Seyir",
+  publisher: "Seyir",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Seyir - Film Takip ve Keşif",
+    description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin, listeler oluşturun ve arkadaşlarınızla film önerileri paylaşın.",
+    url: siteUrl,
+    siteName: "Seyir",
+    locale: "tr_TR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Seyir - Film Takip ve Keşif",
+    description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin, listeler oluşturun ve arkadaşlarınızla film önerileri paylaşın.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Movie Tracker",
+    title: "Seyir",
   },
   icons: {
     icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
