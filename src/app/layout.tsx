@@ -22,11 +22,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `h
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Seyir - Film Takip ve Keşif",
-    template: "%s | Seyir",
+    default: "W2W — What to Watch",
+    template: "%s | W2W",
   },
   description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin, listeler oluşturun ve arkadaşlarınızla film önerileri paylaşın.",
-  applicationName: "Seyir",
+  applicationName: "W2W",
   keywords: [
     "film takip",
     "film listesi",
@@ -35,11 +35,11 @@ export const metadata: Metadata = {
     "sinema",
     "movie tracker",
     "watchlist",
-    "seyir",
+    "W2W",
   ],
-  authors: [{ name: "Seyir" }],
-  creator: "Seyir",
-  publisher: "Seyir",
+  authors: [{ name: "W2W" }],
+  creator: "W2W",
+  publisher: "W2W",
   formatDetection: {
     email: false,
     address: false,
@@ -49,16 +49,16 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Seyir - Film Takip ve Keşif",
+    title: "W2W — What to Watch",
     description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin, listeler oluşturun ve arkadaşlarınızla film önerileri paylaşın.",
     url: siteUrl,
-    siteName: "Seyir",
+    siteName: "W2W",
     locale: "tr_TR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Seyir - Film Takip ve Keşif",
+    title: "W2W — What to Watch",
     description: "İzlediğiniz ve izleyeceğiniz filmleri takip edin, listeler oluşturun ve arkadaşlarınızla film önerileri paylaşın.",
   },
   robots: {
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Seyir",
+    title: "W2W",
   },
   icons: {
     icon: [

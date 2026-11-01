@@ -1,7 +1,7 @@
 {
-  "name": "Seyir",
-  "short_name": "Seyir",
-  "description": "İzlediğiniz ve izleyeceğiniz filmleri takip edin.",
+  "name": "W2W — What to Watch",
+  "short_name": "W2W",
+  "description": "What to Watch: İzlediğiniz ve izleyeceğiniz filmleri takip edin.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

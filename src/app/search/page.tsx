@@ -16,14 +16,14 @@ const SEARCH_DEBOUNCE_MS = 800;
 export default function SearchPage() {
   const { user, loading: authLoading, language, region } = useAuth();
   const t = (key: string, values?: Record<string, any>) => translate(language, key, values);
-  const searchCacheKey = `seyir_searchResults_${language}_${region}`;
-  const trendingCacheKey = `seyir_trendingCache_${language}_${region}`;
+  const searchCacheKey = `w2w_searchResults_${language}_${region}`;
+  const trendingCacheKey = `w2w_trendingCache_${language}_${region}`;
   const { movies: localMovies } = useAppData();
   const router = useRouter();
 
   // ── Search state ──────────────────────────────────────────────────────────
   const [queryInput, setQueryInput] = useState(() => {
-    if (typeof window !== "undefined") return sessionStorage.getItem("seyir_searchQuery") || sessionStorage.getItem("movieTracker_searchQuery") || "";
+    if (typeof window !== "undefined") return sessionStorage.getItem("w2w_searchQuery") || sessionStorage.getItem("movieTracker_searchQuery") || "";
     return "";
   });
   const [results, setResults] = useState(() => {
@@ -117,7 +117,7 @@ export default function SearchPage() {
   // ── Interaction handlers ─────────────────────────────────────────────────
   const handleInputChange = useCallback((val) => {
     setQueryInput(val);
-    sessionStorage.setItem("seyir_searchQuery", val);
+    sessionStorage.setItem("w2w_searchQuery", val);
     clearTimeout(debounceRef.current);
     if (!val.trim()) {
       setIsDebouncing(false);
@@ -132,7 +132,7 @@ export default function SearchPage() {
     setQueryInput("");
     setIsDebouncing(false);
     setResults([]);
-    sessionStorage.setItem("seyir_searchQuery", "");
+    sessionStorage.setItem("w2w_searchQuery", "");
     sessionStorage.setItem(searchCacheKey, JSON.stringify([]));
     clearTimeout(debounceRef.current);
     inputRef.current?.focus();

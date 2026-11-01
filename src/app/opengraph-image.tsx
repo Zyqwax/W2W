@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Seyir - Film Takip ve Keşif";
+export const alt = "W2W — What to Watch";
 export const size = {
   width: 1200,
   height: 630,
@@ -85,7 +85,7 @@ export default async function Image() {
               color: "#ffffff",
             }}
           >
-            Seyir
+            W2W
           </span>
         </div>
 
@@ -97,7 +97,7 @@ export default async function Image() {
             margin: "0 0 16px 0",
           }}
         >
-          Film Takip ve Keşif
+          What to Watch
         </p>
 
         <p

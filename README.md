@@ -1,6 +1,6 @@
-# 🎬 Seyir
+# 🎬 W2W — What to Watch
 
-**Seyir**, kullanıcıların TMDB (The Movie Database) üzerinden filmleri keşfetmesini, izleme listeleri (wishlist) ve özel listeler oluşturmasını, izleme geçmişini detaylı biçimde takip edip puanlamasını ve profillerini arkadaşlarıyla paylaşmasını sağlayan modern, mobil öncelikli bir **Next.js (App Router)** ve **Firebase Firestore** web/PWA uygulamasıdır.
+**W2W (What to Watch)**, kullanıcıların TMDB (The Movie Database) üzerinden filmleri keşfetmesini, izleme listeleri (wishlist) ve özel listeler oluşturmasını, izleme geçmişini detaylı biçimde takip edip puanlamasını ve profillerini arkadaşlarıyla paylaşmasını sağlayan modern, mobil öncelikli bir **Next.js (App Router)** ve **Firebase Firestore** web/PWA uygulamasıdır.
 
 ---
 
@@ -53,7 +53,7 @@
 ## 📁 Proje Yapısı
 
 ```text
-seyir-app/
+w2w/
 ├── public/                # PWA manifest, service worker (sw.js) ve statik varlıklar
 ├── src/
 │   ├── app/               # Next.js App Router sayfaları ve layout
@@ -91,8 +91,8 @@ seyir-app/
 ### 1. Depoyu Klonlayın ve Bağımlılıkları Yükleyin
 
 ```bash
-git clone https://github.com/kullanici-adi/seyir-app.git
-cd seyir-app
+git clone https://github.com/kullanici-adi/w2w.git
+cd w2w
 pnpm install
 ```
 

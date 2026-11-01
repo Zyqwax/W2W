@@ -1,4 +1,4 @@
-const CACHE_NAME = "seyir-cache-v1";
+const CACHE_NAME = "w2w-cache-v1";
 const OFFLINE_URL = "/";
 
 const ASSETS_TO_CACHE = [
@@ -64,7 +64,7 @@ self.addEventListener("fetch", (event) => {
           // Only cache successful image responses
           if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
-            caches.open("seyir-images-v1").then((cache) => {
+            caches.open("w2w-images-v1").then((cache) => {
               cache.put(event.request, responseToCache);
             });
           }
