@@ -8,6 +8,27 @@
       "when": 1793512273625,
       "tag": "0000_gigantic_the_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793538905597,
+      "tag": "0001_sour_nicolaos",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793538926014,
+      "tag": "0002_special_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793539649322,
+      "tag": "0003_lonely_ultron",
+      "breakpoints": true
     }
   ]
 }

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:convert-documents": "node scripts/convert-app-documents.mjs"
   },
   "dependencies": {
     "better-auth": "^1.7.14",
