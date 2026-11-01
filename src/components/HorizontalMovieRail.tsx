@@ -5,8 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function HorizontalMovieRail({ children, className = "" }) {
   const railRef = useRef(null);
-  const animationRef = useRef(null);
-  const dragRef = useRef({ active: false, moved: false, startX: 0, startScrollLeft: 0, lastX: 0, lastTime: 0, velocity: 0 });
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -33,7 +31,6 @@ export default function HorizontalMovieRail({ children, className = "" }) {
     mutationObserver.observe(rail, { childList: true, subtree: true });
 
     return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
       rail.removeEventListener("scroll", updateScrollButtons);
       window.removeEventListener("resize", updateScrollButtons);
       resizeObserver?.disconnect();
@@ -41,87 +38,10 @@ export default function HorizontalMovieRail({ children, className = "" }) {
     };
   }, [updateScrollButtons]);
 
-  const handlePointerDown = (event) => {
-    if (event.pointerType !== "mouse" || event.button !== 0) return;
-    const rail = railRef.current;
-    if (!rail) return;
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    dragRef.current = { active: true, moved: false, startX: event.clientX, startScrollLeft: rail.scrollLeft, lastX: event.clientX, lastTime: performance.now(), velocity: 0 };
-  };
-
-  const handlePointerMove = (event) => {
-    if (event.pointerType !== "mouse") return;
-    const rail = railRef.current;
-    const drag = dragRef.current;
-    if (!rail || !drag.active) return;
-    const distance = event.clientX - drag.startX;
-    if (Math.abs(distance) > 8) {
-      drag.moved = true;
-      if (!rail.hasPointerCapture(event.pointerId)) rail.setPointerCapture(event.pointerId);
-      rail.style.scrollBehavior = "auto";
-    }
-    rail.scrollLeft = drag.startScrollLeft - distance;
-    const now = performance.now();
-    const elapsed = Math.max(now - drag.lastTime, 1);
-    drag.velocity = (event.clientX - drag.lastX) / elapsed;
-    drag.lastX = event.clientX;
-    drag.lastTime = now;
-  };
-
-  const startInertia = (initialVelocity) => {
-    const rail = railRef.current;
-    if (!rail || Math.abs(initialVelocity) < 0.08) return;
-    rail.style.scrollBehavior = "auto";
-    let velocity = initialVelocity * 16;
-    let previousTime = performance.now();
-    const step = (time) => {
-      const elapsed = Math.min(time - previousTime, 32);
-      previousTime = time;
-      rail.scrollLeft -= velocity * elapsed;
-      velocity *= Math.pow(0.94, elapsed / 16);
-      if (Math.abs(velocity) > 0.08 && rail.scrollLeft > 0 && rail.scrollLeft < rail.scrollWidth - rail.clientWidth) {
-        animationRef.current = requestAnimationFrame(step);
-      } else {
-        rail.style.scrollBehavior = "smooth";
-        animationRef.current = null;
-      }
-    };
-    animationRef.current = requestAnimationFrame(step);
-  };
-
-  const stopDragging = (event) => {
-    if (event.pointerType !== "mouse") return;
-    const rail = railRef.current;
-    if (rail?.hasPointerCapture(event.pointerId)) rail.releasePointerCapture(event.pointerId);
-    const velocity = dragRef.current.velocity;
-    if (rail) rail.style.scrollBehavior = "smooth";
-    dragRef.current.active = false;
-    startInertia(velocity);
-  };
-
-  const handleWheel = (event) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const delta = event.deltaX || event.deltaY;
-    if (!delta) return;
-    const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
-    const canMove = delta < 0 ? rail.scrollLeft > 0 : rail.scrollLeft < maxScrollLeft - 1;
-    if (!canMove) return;
-    event.preventDefault();
-    rail.scrollBy({ left: delta, behavior: "auto" });
-  };
-
   const scrollByPage = (direction) => {
     const rail = railRef.current;
     if (!rail) return;
     rail.scrollBy({ left: direction * Math.max(rail.clientWidth * 0.7, 220), behavior: "smooth" });
-  };
-
-  const preventDraggedClick = (event) => {
-    if (!dragRef.current.moved) return;
-    event.preventDefault();
-    event.stopPropagation();
-    dragRef.current.moved = false;
   };
 
   const handleKeyDown = (event) => {
@@ -132,28 +52,22 @@ export default function HorizontalMovieRail({ children, className = "" }) {
   };
 
   return (
-    <div className="group/rail relative">
+    <div className="group/rail relative min-w-0 max-w-full">
       <div
         ref={railRef}
         role="region"
         aria-label="Yatay kaydırılabilir içerik"
         tabIndex={0}
-        className={`md:cursor-grab md:active:cursor-grabbing ${className}`}
+        className={className}
         style={{
           touchAction: "pan-x pan-y",
           overscrollBehaviorX: "contain",
-          scrollBehavior: "smooth",
+          scrollBehavior: "auto",
           WebkitOverflowScrolling: "touch",
-          scrollSnapType: "x mandatory",
+          scrollSnapType: "x proximity",
           scrollPadding: "0 1rem",
         }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={stopDragging}
-        onPointerCancel={stopDragging}
-        onWheel={handleWheel}
         onKeyDown={handleKeyDown}
-        onClickCapture={preventDraggedClick}
       >
         {children}
       </div>

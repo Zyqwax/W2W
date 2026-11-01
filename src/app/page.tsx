@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAppData } from "@/context/AppDataContext";
 import { useRouter } from "next/navigation";
 import PageLoading from "@/components/ui/PageLoading";
+import HorizontalMovieRail from "@/components/HorizontalMovieRail";
 
 function PosterCard({ movie, language }) {
   const poster = movie.posterPath || movie.poster_path;
@@ -31,9 +32,11 @@ export default function Home() {
   const [spotlightId, setSpotlightId] = useState(null);
   const hasSelectedSpotlight = useRef(false);
   const wishlist = useMemo(() => movies.filter((movie) => movie.status === "wishlist"), [movies]);
-  const watched = useMemo(() => movies.filter((movie) => movie.isWatched).sort((a, b) => (b.watchedAt || 0) - (a.watchedAt || 0)), [movies]);
+  const watched = useMemo(() => movies
+    .filter((movie) => movie.isWatched)
+    .sort((a, b) => (getWatchedTimestamp(b) - getWatchedTimestamp(a))), [movies]);
   const spotlight = wishlist.find((movie) => String(movie.id) === String(spotlightId)) || wishlist[0];
-  const customLists = (lists || []).filter((list) => list.type === "custom").slice(0, 3);
+  const customLists = (lists || []).filter((list) => list.type === "custom");
 
   useEffect(() => {
     if (hasSelectedSpotlight.current || !wishlist.length) return;
@@ -62,7 +65,7 @@ export default function Home() {
   const heroImage = spotlight?.backdropPath || spotlight?.backdrop_path || spotlight?.posterPath || spotlight?.poster_path;
   const spotlightPoster = spotlight?.posterPath || spotlight?.poster_path;
   const spotlightRating = Number(spotlight?.voteAverage ?? spotlight?.vote_average ?? spotlight?.rating);
-  const recent = watched.slice(0, 5);
+  const recent = watched;
 
   return (
     <div className="mx-auto max-w-[1480px] px-4 py-7 sm:px-7 lg:px-10 lg:py-10">
@@ -105,28 +108,40 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="grid gap-12">
-        <section aria-labelledby="watchlist-title">
+      <div className="grid min-w-0 grid-cols-1 gap-12">
+        <section className="min-w-0" aria-labelledby="watchlist-title">
           <header className="mb-5 flex items-end justify-between gap-4">
             <div><p className="text-xs font-bold uppercase tracking-[0.12em] text-accent">{isEnglish ? "Saved for later" : "Sonra izlemek için"}</p><h2 id="watchlist-title" className="mt-1 text-2xl font-extrabold tracking-tight text-text">{isEnglish ? "My watchlist" : "İzleme listem"}<span className="ml-2 align-middle text-sm font-semibold text-muted">{wishlist.length}</span></h2></div>
             <Link href="/lists/wishlist" className="inline-flex min-h-10 items-center gap-1 text-sm font-bold text-accent hover:underline">{isEnglish ? "See all" : "Tümünü gör"}<ArrowRight size={15} /></Link>
           </header>
-          {wishlist.length ? <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{wishlist.slice(0, 8).map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</div> : <div className="rounded-2xl border border-dashed border-border bg-surface/70 px-5 py-7"><p className="font-bold text-text">{isEnglish ? "Your watchlist is ready" : "İzleme listen seni bekliyor"}</p><p className="mt-1 text-sm text-muted">{isEnglish ? "Save films you want to watch later." : "Sonra izlemek istediklerini buraya ekle."}</p><Link href="/search" className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-white"><Plus size={16} />{isEnglish ? "Find a film" : "Film bul"}</Link></div>}
+          {wishlist.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{wishlist.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</HorizontalMovieRail> : <div className="rounded-2xl border border-dashed border-border bg-surface/70 px-5 py-7"><p className="font-bold text-text">{isEnglish ? "Your watchlist is ready" : "İzleme listen seni bekliyor"}</p><p className="mt-1 text-sm text-muted">{isEnglish ? "Save films you want to watch later." : "Sonra izlemek istediklerini buraya ekle."}</p><Link href="/search" className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-white"><Plus size={16} />{isEnglish ? "Find a film" : "Film bul"}</Link></div>}
         </section>
 
-        <section aria-labelledby="recent-title">
+        <section className="min-w-0" aria-labelledby="recent-title">
           <header className="mb-5 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">{isEnglish ? "Your history" : "İzleme geçmişin"}</p><h2 id="recent-title" className="mt-1 text-2xl font-extrabold tracking-tight text-text">{isEnglish ? "Recently watched" : "Son izlediklerin"}</h2></div><Link href="/lists/watched" className="inline-flex min-h-10 items-center gap-1 text-sm font-bold text-accent hover:underline">{isEnglish ? "Full history" : "Tüm geçmiş"}<ArrowRight size={15} /></Link></header>
-          {recent.length ? <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{recent.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</div> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Films you mark as watched will appear here." : "İzlendi olarak işaretlediğin filmler burada görünecek."}</p>}
+          {recent.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{recent.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</HorizontalMovieRail> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Films you mark as watched will appear here." : "İzlendi olarak işaretlediğin filmler burada görünecek."}</p>}
         </section>
 
         {customLists.map((list) => {
           const items = listMovies?.[list.id] || [];
-          return <section key={list.id} aria-labelledby={`home-list-${list.id}`}>
+          return <section key={list.id} className="min-w-0" aria-labelledby={`home-list-${list.id}`}>
             <header className="mb-5 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">{isEnglish ? "Your collection" : "Koleksiyonun"}</p><h2 id={`home-list-${list.id}`} className="mt-1 text-2xl font-extrabold tracking-tight text-text">{list.name}<span className="ml-2 align-middle text-sm font-semibold text-muted">{items.length}</span></h2></div><Link href={`/lists/${list.id}`} className="inline-flex min-h-10 items-center gap-1 text-sm font-bold text-accent hover:underline">{isEnglish ? "See list" : "Listeye git"}<ArrowRight size={15} /></Link></header>
-            {items.length ? <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{items.slice(0, 8).map((movie) => <PosterCard key={movie.id} movie={{ ...movie, isWatched: Boolean(movie.isWatched || watchedMovieIds.includes(String(movie.id))) }} language={language} />)}</div> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Add films from any film page." : "Film sayfalarından bu listeye ekleme yapabilirsin."}</p>}
+            {items.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{items.map((movie) => <PosterCard key={movie.id} movie={{ ...movie, isWatched: Boolean(movie.isWatched || watchedMovieIds.includes(String(movie.id))) }} language={language} />)}</HorizontalMovieRail> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Add films from any film page." : "Film sayfalarından bu listeye ekleme yapabilirsin."}</p>}
           </section>;
         })}
       </div>
     </div>
   );
+}
+
+function getWatchedTimestamp(movie) {
+  const value = movie.watchedAt;
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  if (value && typeof value === "object" && typeof value.toDate === "function") return value.toDate().getTime();
+  return 0;
 }
