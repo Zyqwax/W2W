@@ -243,11 +243,10 @@ export default function PublicProfilePage(props: { params: Promise<{ id: string 
   };
 
   // ── Loading and not-found states ────────────────────────────────────────
-  if (authLoading || !user || loading) return <PublicProfileLoading />;
-  if (targetUser === false) return <PublicProfileNotFound />;
-  if (!targetUser) return null;
-
   const t = (key: string, values?: Record<string, any>) => translate(language, key, values);
+  if (authLoading || !user || loading) return <PublicProfileLoading />;
+  if (targetUser === false) return <PublicProfileNotFound t={t} />;
+  if (!targetUser) return null;
 
   // ── Presentational view ─────────────────────────────────────────────────
   return (

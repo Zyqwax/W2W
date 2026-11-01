@@ -13,9 +13,10 @@ export function ProfileLoading() {
   return <PageLoading label="Profil yükleniyor" />;
 }
 
-function FriendsSection({ friends = [], onShare, t }) {
+function FriendsSection({ friends = [], onShare, t, language }) {
+  const isEnglish = language === "en";
   return (
-    <section className="border-b border-border py-6" aria-labelledby="friends-title">
+    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6" aria-labelledby="friends-title">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-2">
           <Users size={18} className="shrink-0 text-accent" aria-hidden="true" />
@@ -29,7 +30,7 @@ function FriendsSection({ friends = [], onShare, t }) {
           onClick={onShare}
           className="min-h-11 rounded-[var(--radius-md)] px-3 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
-          {t("profile.addFriend")}
+          {t("profile.share")}
         </button>
       </div>
 
@@ -54,10 +55,10 @@ function FriendsSection({ friends = [], onShare, t }) {
           ))}
         </HorizontalMovieRail>
       ) : (
-        <div className="border border-dashed border-border px-4 py-6 text-center">
+        <div className="rounded-xl border border-dashed border-border bg-bg px-4 py-6 text-center">
           <Users size={24} className="mx-auto mb-2 text-faint" aria-hidden="true" />
           <p className="text-sm leading-relaxed text-muted">
-            Profil linkini paylaşarak arkadaş ekleyebilirsin. {" "}
+            {isEnglish ? "Share your profile link to connect with friends." : "Profil linkini paylaşarak arkadaş ekleyebilirsin."}{" "}
             <button
               type="button"
               onClick={onShare}
@@ -72,7 +73,7 @@ function FriendsSection({ friends = [], onShare, t }) {
   );
 }
 
-function Attribution() {
+function Attribution({ t }) {
   return (
     <footer className="flex flex-col items-center gap-2 py-8 text-center">
       <a
@@ -89,9 +90,7 @@ function Attribution() {
           unoptimized
         />
       </a>
-      <p className="max-w-xs text-xs leading-relaxed text-faint">
-        Bu uygulama TMDB API&apos;sini kullanmaktadır ancak TMDB tarafından onaylanmamıştır.
-      </p>
+      <p className="max-w-xs text-xs leading-relaxed text-faint">{t("profile.attribution")}</p>
     </footer>
   );
 }
@@ -113,22 +112,18 @@ export default function ProfileView({
   t,
 }) {
   return (
-    <main className="min-h-full overflow-hidden bg-bg px-4 pb-24 pt-5 text-text sm:px-6 md:px-8">
-      <div className="mx-auto max-w-6xl">
-        <ProfileHeader user={user} movies={recentlyWatched} onShare={onShare} onLogout={onLogout} t={t} />
+    <main className="min-h-full overflow-hidden bg-bg px-4 py-7 text-text sm:px-7 lg:px-10 lg:py-10">
+      <div className="mx-auto max-w-[1320px]">
+        <ProfileHeader user={user} language={language} movies={recentlyWatched} onShare={onShare} onLogout={onLogout} t={t} />
         <StatsRow movies={movies} watchedCount={watched.length} wishlistCount={wishlist.length} average={avgRating} t={t} />
-        <RecentlyWatched movies={recentlyWatched} t={t} />
-        <FriendsSection friends={friends} onShare={onShare} t={t} />
-        <div className="py-6">
-          <PreferencesSection
-            language={language}
-            region={region}
-            onChange={onPreferenceChange}
-            status={preferenceStatus}
-            t={t}
-          />
+        <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:items-start">
+          <div className="min-w-0"><RecentlyWatched movies={recentlyWatched} t={t} /></div>
+          <div className="min-w-0 space-y-5">
+            <FriendsSection friends={friends} onShare={onShare} t={t} language={language} />
+            <PreferencesSection language={language} region={region} onChange={onPreferenceChange} status={preferenceStatus} t={t} />
+          </div>
         </div>
-        <Attribution />
+        <Attribution t={t} />
       </div>
     </main>
   );

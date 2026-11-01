@@ -7,12 +7,12 @@ function getPosterUrl(movie) {
   return poster ? `https://image.tmdb.org/t/p/w780${poster}` : null;
 }
 
-export default function ProfileHeader({ user, movies = [], onShare, onLogout, t }) {
+export default function ProfileHeader({ user, language, movies = [], onShare, onLogout, t }) {
   const backgroundMovies = movies.map(getPosterUrl).filter(Boolean).slice(0, 4);
 
   return (
-    <header className="relative isolate overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface">
-      <div className="absolute inset-0 z-0 grid grid-cols-2 opacity-40" aria-hidden="true">
+    <header className="relative isolate overflow-hidden rounded-[28px] border border-border bg-surface shadow-sm">
+      <div className="absolute inset-0 z-0 grid grid-cols-2 opacity-20" aria-hidden="true">
         {Array.from({ length: 4 }, (_, index) => (
           <div key={index} className="relative min-h-32 overflow-hidden bg-surface-2">
             {backgroundMovies[index] && (
@@ -28,19 +28,19 @@ export default function ProfileHeader({ user, movies = [], onShare, onLogout, t 
           </div>
         ))}
       </div>
-      <div className="absolute inset-0 z-0 bg-gradient-to-r from-bg via-bg/90 to-bg/55" aria-hidden="true" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-surface via-surface/90 to-surface/70" aria-hidden="true" />
 
       <div className="relative z-10 flex flex-col gap-6 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
         <div className="flex min-w-0 items-center gap-4">
           <Avatar
             user={user}
             size={88}
-            alt={user.displayName || user.email || "Profile avatar"}
+            alt={user.displayName || user.email || (language === "en" ? "Profile avatar" : "Profil fotoğrafı")}
             className="border-2 border-accent/60 shadow-[0_0_0_6px_var(--color-accent-glow)]"
           />
           <div className="min-w-0">
             <h1 className="truncate font-syne text-2xl font-bold text-text sm:text-3xl">
-              {user.displayName || "Kullanıcı"}
+              {user.displayName || (language === "en" ? "User" : "Kullanıcı")}
             </h1>
             <p className="mt-1 truncate text-sm text-muted">{user.email}</p>
           </div>

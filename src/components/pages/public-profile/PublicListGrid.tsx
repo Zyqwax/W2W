@@ -5,8 +5,8 @@ import Skeleton from "@/components/ui/Skeleton";
 import HorizontalMovieRail from "@/components/HorizontalMovieRail";
 
 function listTitle(list, ownerName, t) {
-  if (list.id === "wishlist") return `${ownerName || "User"}'s Wishlist`;
-  if (list.id === "watched") return `${ownerName || "User"}'s Watched`;
+  if (list.id === "wishlist") return t("publicProfile.wishlistTitle", { name: ownerName || t("nav.user") });
+  if (list.id === "watched") return t("publicProfile.watchedTitle", { name: ownerName || t("nav.user") });
   return list.name || t("lists.customHelp");
 }
 
@@ -41,7 +41,7 @@ function PublicMovieCard({ movie, ownerWatchedLabel, viewerWatchedLabel, viewerL
         <div className="absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-col items-start gap-1">
           {movie.ownerWatched && <span className="rounded-full bg-accent-alt px-2 py-1 text-[10px] font-semibold text-bg">{ownerWatchedLabel}</span>}
           {movie.viewerWatched && <span className="rounded-full bg-success px-2 py-1 text-[10px] font-semibold text-bg">{viewerWatchedLabel}</span>}
-          {movie.inViewerList && <span className="rounded-full bg-accent px-2 py-1 text-[10px] font-semibold text-text">{viewerListLabel}</span>}
+          {movie.inViewerList && <span className="rounded-full bg-accent px-2 py-1 text-[10px] font-semibold text-white">{viewerListLabel}</span>}
         </div>
       )}
       {rating > 0 && (
@@ -99,7 +99,7 @@ export default function PublicListGrid({
         const hasLoaded = Object.prototype.hasOwnProperty.call(publicListMovies, list.id);
         const movies = publicListMovies[list.id] || [];
         const title = listTitle(list, ownerName, t);
-        const ownerWatchedLabel = `${ownerName || "Arkadaş"} izledi`;
+        const ownerWatchedLabel = t("publicProfile.ownerWatched", { name: ownerName || t("nav.user") });
         const isCopying = copyingListId === list.id;
         const isCopied = copyStatus?.id === list.id && copyStatus.state === "saved";
 
@@ -122,7 +122,7 @@ export default function PublicListGrid({
                   href={`/u/${targetUid}/lists/${list.id}`}
                   className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-3 text-xs font-semibold text-accent transition-colors hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:text-sm"
                 >
-                  Tümünü gör
+                  {t("publicProfile.viewAll")}
                 </Link>
                 <button
                   type="button"
@@ -131,7 +131,7 @@ export default function PublicListGrid({
                   className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-border px-3 text-xs font-semibold text-accent transition-colors hover:border-accent hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-wait disabled:opacity-60 sm:px-4 sm:text-sm"
                 >
                   <Copy size={16} aria-hidden="true" />
-                  <span>{isCopying ? t("common.saving") : isCopied ? t("lists.added") : "Profilime kopyala"}</span>
+                  <span>{isCopying ? t("common.saving") : isCopied ? t("lists.added") : t("publicProfile.copyList")}</span>
                 </button>
               </div>
             </div>
@@ -145,8 +145,8 @@ export default function PublicListGrid({
                     key={movie.id}
                     movie={movie}
                     ownerWatchedLabel={ownerWatchedLabel}
-                    viewerWatchedLabel="Sen izledin"
-                    viewerListLabel="Senin listende"
+                    viewerWatchedLabel={t("publicProfile.viewerWatched")}
+                    viewerListLabel={t("publicProfile.viewerList")}
                   />
                 ))}
               </HorizontalMovieRail>

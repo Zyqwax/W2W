@@ -19,6 +19,7 @@ export default function ListsPage() {
   const [listMovies, setListMovies] = useState({});
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
 
@@ -69,12 +70,23 @@ export default function ListsPage() {
   const createList = async (event) => {
     event.preventDefault();
     const listName = name.trim();
-    if (!listName || !user) return;
+    if (!listName || !user) return false;
+    const formData = new FormData(event.currentTarget);
+    const visibility = formData.get("visibility") === "private" ? "private" : "public";
     setCreating(true);
     const id = generateListId();
-    await setDoc(doc(db, "users", user.uid, "lists", id), { id, name: listName, type: "custom", visibility: "public", showOnHome: false, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), schemaVersion: 1 });
-    setName("");
-    setCreating(false);
+    try {
+      await setDoc(doc(db, "users", user.uid, "lists", id), { id, name: listName, type: "custom", visibility, showOnHome: false, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), schemaVersion: 1 });
+      setName("");
+      setCreateError(false);
+      return true;
+    } catch (error) {
+      console.error("List creation error:", error);
+      setCreateError(true);
+      return false;
+    } finally {
+      setCreating(false);
+    }
   };
 
   const saveList = async (list) => {
@@ -104,10 +116,11 @@ export default function ListsPage() {
   if (authLoading || !user) return <PageLoading />;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 md:px-8 md:pt-10">
-      <header className="mb-4 flex items-end justify-between gap-4">
-        <div><p className="mb-1 text-[11px] font-medium uppercase tracking-widest text-muted">{t("lists.eyebrow")}</p><h1 className="font-syne text-2xl font-semibold text-text md:text-3xl">{t("lists.title")}</h1></div>
+    <div className="mx-auto max-w-[1320px] px-4 py-7 sm:px-7 lg:px-10 lg:py-10">
+      <header className="mb-8">
+        <p className="text-sm font-semibold text-accent">{t("lists.eyebrow")}</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight text-text md:text-4xl">{t("lists.title")}</h1><p className="mt-2 text-sm text-muted">{language === "en" ? "Your saved films, organized your way." : "Kaydettiğin filmler, kendi düzenin."}</p>
       </header>
+      {createError && <p role="alert" className="mb-5 rounded-xl border border-danger/20 bg-danger/5 px-4 py-3 text-sm font-medium text-danger">{language === "en" ? "The list could not be created. Try again." : "Liste oluşturulamadı. Yeniden dene."}</p>}
       <ListGrid
         lists={lists}
         listMovies={listMovies}
@@ -119,7 +132,7 @@ export default function ListsPage() {
         onSave={saveList}
         onVisibilityChange={changeVisibility}
         onDelete={deleteList}
-        newListButton={<NewListButton name={name} creating={creating} onNameChange={setName} onSubmit={createList} t={t} />}
+        newListButton={<NewListButton name={name} creating={creating} onNameChange={(value) => { setName(value); setCreateError(false); }} onSubmit={createList} t={t} />}
       />
     </div>
   );

@@ -99,7 +99,7 @@ export default function ListDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-24 pt-8 md:px-8 md:pt-12">
+    <div className="mx-auto max-w-[1480px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
       <ListHeader list={list} count={displayMovies.length} language={language} t={t} onEdit={() => router.push("/lists")} />
       {id === "wishlist" && <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label={language === "tr" ? "Wishlist filtresi" : "Watchlist filter"}>
         {[{ value: "all", label: language === "tr" ? "Tümü" : "All" }, { value: "unwatched", label: language === "tr" ? "İzlemediklerim" : "Unwatched" }].map((option) => <button key={option.value} type="button" onClick={() => setWishlistFilter(option.value)} aria-pressed={wishlistFilter === option.value} className={`min-h-10 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${wishlistFilter === option.value ? "border-accent bg-accent text-bg" : "border-border text-muted hover:border-accent hover:text-text"}`}>{option.label}</button>)}

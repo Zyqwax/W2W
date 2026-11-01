@@ -89,7 +89,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#130D0F",
+  themeColor: "#09090b",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -106,7 +106,7 @@ import { NavigationProvider } from "@/context/NavigationContext";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="tr" className={`h-full antialiased dark ${inter.variable} ${syne.variable}`} suppressHydrationWarning>
+    <html lang="tr" className={`h-full antialiased ${inter.variable} ${syne.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-[--color-bg] text-[--color-text] font-inter antialiased">
         <ServiceWorkerRegister />
         <AuthProvider>

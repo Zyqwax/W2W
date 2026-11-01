@@ -3,30 +3,30 @@
 
 :root {
   /* Zemin */
-  --color-bg: #0a0a0f;
-  --color-surface: #12121a;
-  --color-surface-2: #1c1c28;
-  --color-border: #ffffff12;
+  --color-bg: #09090b;
+  --color-surface: #111113;
+  --color-surface-2: #1b1b1f;
+  --color-border: #2c2c32;
 
   /* Metin */
-  --color-text: #f0f0f5;
-  --color-text-muted: #8888a0;
-  --color-text-faint: #44445a;
+  --color-text: #f4f2ed;
+  --color-text-muted: #a1a1aa;
+  --color-text-faint: #8b8b95;
 
   /* Vurgu */
-  --color-accent: #6c63ff;
-  --color-accent-glow: #6c63ff33;
-  --color-accent-alt: #ff6584;
+  --color-accent: #c8a96b;
+  --color-accent-glow: #c8a96b26;
+  --color-accent-alt: #c45c68;
 
   /* Özel */
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
-  --color-danger: #f87171;
+  --color-success: #57b98a;
+  --color-warning: #e2b85d;
+  --color-danger: #ef737d;
 
   /* Boyutlar */
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
   --radius-full: 9999px;
 
   /* next/font/google injects these on the root html element. */
@@ -47,10 +47,10 @@
   --color-void: var(--color-bg);
   --color-surface1: var(--color-surface);
   --color-surface2: var(--color-surface-2);
-  --color-surface3: #292938;
+  --color-surface3: #25252b;
   --color-gold: var(--color-accent);
-  --color-gold-dim: #918bff;
-  --color-gold-ink: var(--color-bg);
+  --color-gold-dim: #8178e3;
+  --color-gold-ink: #111113;
   --color-oxblood: var(--color-accent-alt);
   --color-oxblood-bright: var(--color-accent-alt);
   --color-ivory: var(--color-text);
@@ -59,34 +59,34 @@
   --color-zinc-950: var(--color-bg);
   --color-zinc-900: var(--color-surface);
   --color-zinc-800: var(--color-surface-2);
-  --color-zinc-700: #292938;
-  --color-zinc-600: #5f5f78;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-600: #71717a;
   --color-zinc-500: var(--color-text-muted);
   --color-zinc-400: var(--color-text-muted);
   --color-zinc-300: var(--color-text);
   --color-zinc-200: var(--color-text);
   --color-zinc-100: var(--color-text);
   --color-zinc-50: var(--color-text);
-  --color-rose-950: #301522;
+  --color-rose-950: #351c21;
   --color-rose-600: var(--color-accent-alt);
   --color-rose-500: var(--color-accent-alt);
-  --color-rose-400: #ff8fa5;
-  --color-rose-300: #ffb4c3;
+  --color-rose-400: #f08a94;
+  --color-rose-300: #f6a5ad;
   --color-amber-500: var(--color-warning);
   --color-amber-400: var(--color-warning);
-  --color-amber-300: #fcd778;
+  --color-amber-300: #f4d38a;
 
   --animate-fade-in: fadeIn 0.3s ease-out forwards;
   --animate-modal-in: modalIn 160ms ease-out forwards;
 }
 
 @utility archive-hero-background {
-  background: radial-gradient(120% 140% at 85% 15%, rgb(108 99 255 / 35%), transparent 55%),
-    linear-gradient(160deg, #17162b 0%, var(--color-bg) 65%, #08080d 100%);
+  background: radial-gradient(120% 140% at 85% 15%, rgb(200 169 107 / 12%), transparent 55%),
+    linear-gradient(160deg, #171511 0%, var(--color-bg) 65%, #09090b 100%);
 }
 
 @utility profile-header-background {
-  background: radial-gradient(100% 140% at 90% 10%, rgb(255 101 132 / 35%), transparent 58%),
+  background: radial-gradient(100% 140% at 90% 10%, rgb(196 92 104 / 12%), transparent 58%),
     linear-gradient(150deg, var(--color-surface-2), var(--color-bg));
 }
 
@@ -99,7 +99,7 @@
 }
 
 @utility brand-mark-stripes {
-  background-image: repeating-linear-gradient(90deg, transparent 0 3px, rgb(10 10 15 / 55%) 3px 5px);
+  background-image: repeating-linear-gradient(90deg, transparent 0 3px, rgb(255 255 255 / 12%) 3px 5px);
 }
 
 @utility scrollbar-hide {
@@ -122,6 +122,7 @@
 
   html {
     background: var(--color-bg);
+    color-scheme: dark;
     scroll-behavior: smooth;
   }
 
@@ -138,6 +139,7 @@
 
   h1, h2, h3, h4 { font-family: var(--font-syne-family), sans-serif; letter-spacing: 0.015em; }
   button, a { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  ::selection { background: rgb(81 70 216 / 20%); color: var(--color-text); }
 
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
     outline: 2px solid var(--color-accent);

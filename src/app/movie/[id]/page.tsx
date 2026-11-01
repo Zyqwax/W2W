@@ -283,7 +283,7 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
   const watchHistory = userData?.watchHistory || [];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-bg pb-24 text-text">
+    <div className="min-h-full bg-bg pb-8 text-text">
       {showPastModal && <PastDateModal onConfirm={handlePastDate} onClose={() => setShowPastModal(false)} t={t} />}
       <MovieRecommendation
         open={showRecommendModal}
@@ -295,9 +295,9 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
       />
       <MovieHero movie={movie} onBack={() => router.back()} t={t} />
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-12 md:px-8">
-        <div className="grid items-start gap-8 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-10">
-          <aside className="order-1 self-start lg:sticky lg:top-6">
+      <main className="mx-auto max-w-[1480px] px-4 pb-8 sm:px-7 lg:px-10">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] lg:gap-10">
+          <aside className="order-1 rounded-2xl border border-border bg-surface p-4 shadow-sm lg:sticky lg:top-24 lg:p-6">
             <WatchedActions
               userData={userData}
               language={language}
@@ -315,7 +315,7 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
             />
           </aside>
 
-          <div className="order-2 min-w-0 space-y-8">
+          <div className="order-2 min-w-0 divide-y divide-border rounded-2xl border border-border bg-surface px-5 shadow-sm sm:px-7">
             <ProviderList
               providers={providers}
               loading={providersLoading}
@@ -324,8 +324,8 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
               t={t}
             />
 
-            <section className="space-y-3 border-l-2 border-accent/60 pl-4" aria-labelledby="movie-overview-heading">
-              <h2 id="movie-overview-heading" className="font-syne text-xl font-semibold text-text">{t("movie.overview")}</h2>
+            <section className="space-y-3 py-6" aria-labelledby="movie-overview-heading">
+              <h2 id="movie-overview-heading" className="text-xl font-extrabold text-text">{t("movie.overview")}</h2>
               <p className="max-w-3xl text-sm leading-7 text-muted">{movie.overview || t("movie.missingOverview")}</p>
             </section>
 

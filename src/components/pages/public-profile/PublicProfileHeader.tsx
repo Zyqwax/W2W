@@ -25,11 +25,11 @@ export default function PublicProfileHeader({ targetUser, isFriend, onBack, onTo
               className="border-2 border-accent/60 shadow-[0_0_0_6px_var(--color-accent-glow)]"
             />
             <div className="min-w-0">
-              <p className="mb-1 text-sm font-semibold text-accent">{t("publicProfile.watchedMovies")}</p>
+              <p className="mb-1 text-sm font-semibold text-accent">{t("publicProfile.eyebrow")}</p>
               <h1 className="truncate font-syne text-2xl font-bold text-text sm:text-3xl">
                 {targetUser.displayName || "Kullanıcı"}
               </h1>
-              <p className="mt-1 text-sm text-muted">{targetUser.displayName ? `${targetUser.displayName}'s Wishlist` : "Wishlist"}</p>
+              <p className="mt-1 text-sm text-muted">{t("publicProfile.subtitle")}</p>
             </div>
           </div>
 

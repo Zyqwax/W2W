@@ -8,14 +8,14 @@ export default function NewListButton({ name, creating, onNameChange, onSubmit, 
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async (event) => {
-    await onSubmit(event);
-    if (!creating) setOpen(false);
+    const succeeded = await onSubmit(event);
+    if (succeeded !== false) setOpen(false);
   };
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="flex min-h-32 w-full flex-col items-center justify-center gap-3 rounded-[var(--radius-lg)] border border-dashed border-[#41413e] bg-[#171716] px-5 text-center text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full border border-current"><ListPlus size={19} aria-hidden="true" /></span>
+      <button type="button" onClick={() => setOpen(true)} className="flex min-h-48 w-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-surface px-5 text-center text-muted transition-colors hover:border-accent hover:bg-accent/[0.03] hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2"><ListPlus size={20} aria-hidden="true" /></span>
         <span className="text-sm font-semibold">{t("lists.create")}</span>
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={t("lists.create")} description={t("lists.customHelp")}>

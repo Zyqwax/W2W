@@ -64,7 +64,7 @@ export default function ListHeader({ list, count, language, t, onEdit }) {
             </span>
             <span
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs ${
-                isPrivate ? "border-border bg-surface-2 text-muted" : "border-border-accent bg-accent/10 text-accent"
+                isPrivate ? "border-border bg-surface-2 text-muted" : "border-accent/25 bg-accent/10 text-accent"
               }`}
             >
               <VisibilityIcon size={12} aria-hidden="true" />
@@ -78,7 +78,7 @@ export default function ListHeader({ list, count, language, t, onEdit }) {
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-border px-3 text-sm text-muted transition-colors hover:border-border-strong hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-border px-3 text-sm text-muted transition-colors hover:border-accent/40 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <Pencil size={14} aria-hidden="true" />
             {t("lists.rename")}
@@ -87,7 +87,7 @@ export default function ListHeader({ list, count, language, t, onEdit }) {
             type="button"
             onClick={handleShare}
             aria-label={t("profile.share")}
-            className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] border border-border text-muted transition-colors hover:border-border-strong hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] border border-border text-muted transition-colors hover:border-accent/40 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <Share2 size={15} aria-hidden="true" />
           </button>

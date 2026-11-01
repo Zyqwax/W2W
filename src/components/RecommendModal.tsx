@@ -27,24 +27,26 @@ export default function RecommendModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-4 backdrop-blur-sm sm:items-center"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-3xl shadow-2xl shadow-black/60 overflow-hidden animate-fade-in">
+      <div className="w-full max-w-sm overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl animate-fade-in sm:rounded-3xl">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-2">
           <div className="min-w-0">
-            <h2 className="text-sm font-bold text-white">{t("movie.recommend")}</h2>
-            <p className="text-[10px] text-zinc-500 mt-0.5 truncate flex items-center gap-1">
-              <Film size={9} className="text-rose-400 shrink-0" />
+            <h2 className="text-sm font-bold text-text">{t("movie.recommend")}</h2>
+            <p className="mt-0.5 flex truncate items-center gap-1 text-xs text-muted">
+              <Film size={12} className="shrink-0 text-accent-alt" />
               {movieTitle}
             </p>
           </div>
           <button
+            type="button"
+            aria-label={t("common.cancel")}
             onClick={onClose}
-            className="p-1.5 rounded-full bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition"
+            className="grid h-11 w-11 place-items-center rounded-full bg-surface-2 text-muted transition hover:text-text"
           >
             <X size={14} />
           </button>
@@ -53,9 +55,9 @@ export default function RecommendModal({
         {/* Friends List */}
         <div className="px-3 pb-2 max-h-[45vh] overflow-y-auto">
           {friends.length === 0 ? (
-            <div className="py-10 text-center text-zinc-500">
-              <p className="text-xs">{t("messages.needFriend")}</p>
-              <p className="text-[10px] text-zinc-600 mt-0.5">
+            <div className="py-10 text-center text-muted">
+              <p className="text-sm">{t("messages.needFriend")}</p>
+              <p className="mt-1 text-xs text-faint">
                 {t("profile.addFriend")}
               </p>
             </div>
@@ -69,8 +71,8 @@ export default function RecommendModal({
                     onClick={() => setSelectedUid(friend.uid || friend.id)}
                     className={`flex items-center gap-3 p-2.5 rounded-xl transition-all w-full text-left ${
                       isSelected
-                        ? "bg-rose-500/10 ring-1 ring-rose-500/30"
-                        : "hover:bg-zinc-800/60"
+                        ? "bg-accent/10 ring-1 ring-accent/30"
+                        : "hover:bg-surface-2"
                     }`}
                   >
                     <div className="w-9 h-9 rounded-full bg-linear-to-br from-rose-500 to-orange-500 flex items-center justify-center shrink-0 overflow-hidden">
@@ -90,7 +92,7 @@ export default function RecommendModal({
                     </div>
 
                     <span
-                      className={`text-sm truncate flex-1 ${isSelected ? "text-white font-medium" : "text-zinc-300"}`}
+                      className={`flex-1 truncate text-sm ${isSelected ? "font-semibold text-accent" : "text-text"}`}
                     >
                       {friend.displayName || t("nav.user")}
                     </span>
@@ -125,7 +127,8 @@ export default function RecommendModal({
             <button
               onClick={handleSend}
               disabled={!selectedUid || sending}
-              className="w-full py-2.5 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-500 transition disabled:opacity-30 flex items-center justify-center gap-2 active:scale-[0.98]"
+              type="button"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white transition hover:brightness-110 active:scale-[0.98] disabled:opacity-40"
             >
               <Send size={14} />
               {sending ? t("common.saving") : t("movie.recommend")}

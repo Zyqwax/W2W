@@ -171,14 +171,14 @@ export default function ListMovieGrid({
 
                     {/* Rating badge */}
                     {rating > 0 && (
-                      <span className="absolute bottom-2 right-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-text backdrop-blur-xs">
+                      <span className="absolute bottom-2 right-2 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
                         ★ {Number(rating).toFixed(1)}
                       </span>
                     )}
 
                     {/* Watched date for watched list */}
                     {isWatchedList && (movie.watchedAt || movie.watchDate) && (
-                      <span className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-medium text-accent backdrop-blur-xs">
+                      <span className="absolute bottom-2 left-2 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">
                         {watchedDate(movie.watchedAt || movie.watchDate, language)}
                       </span>
                     )}

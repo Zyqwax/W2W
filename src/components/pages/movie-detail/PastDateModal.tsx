@@ -9,19 +9,19 @@ export default function PastDateModal({ onConfirm, onClose, t }) {
   const [date, setDate] = useState(today);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-sm bg-zinc-900 border border-zinc-700 rounded-3xl p-6 shadow-2xl shadow-black/60">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-4 backdrop-blur-sm sm:items-center">
+      <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-bold text-white">{t("movie.chooseWatchDate")}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-full bg-zinc-800 text-zinc-400 hover:bg-zinc-700 transition">
+          <h2 className="text-base font-bold text-text">{t("movie.chooseWatchDate")}</h2>
+          <button type="button" aria-label={t("common.cancel")} onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 text-muted transition hover:text-text">
             <X size={16} />
           </button>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">{t("movie.watchedDateQuestion")}</p>
-        <input type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-rose-500 focus:outline-none mb-5 scheme-dark" />
+        <p className="mb-4 text-sm text-muted">{t("movie.watchedDateQuestion")}</p>
+        <input type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} className="mb-5 min-h-12 w-full rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-text focus-visible:ring-2 focus-visible:ring-accent" />
         <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 py-3 bg-zinc-800 text-zinc-300 rounded-xl text-sm font-medium hover:bg-zinc-700 transition">{t("common.cancel")}</button>
-          <button onClick={() => onConfirm(date)} disabled={!date} className="flex-1 py-3 bg-rose-600 text-white rounded-xl text-sm font-semibold hover:bg-rose-500 transition disabled:opacity-50">{t("common.save")}</button>
+          <button type="button" onClick={onClose} className="min-h-12 flex-1 rounded-xl border border-border bg-surface-2 text-sm font-semibold text-text transition hover:bg-surface">{t("common.cancel")}</button>
+          <button type="button" onClick={() => onConfirm(date)} disabled={!date} className="min-h-12 flex-1 rounded-xl bg-accent text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50">{t("common.save")}</button>
         </div>
       </div>
     </div>
