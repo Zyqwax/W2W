@@ -28,12 +28,16 @@ export default function HorizontalMovieRail({ children, className = "" }) {
 
     const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateScrollButtons) : null;
     resizeObserver?.observe(rail);
+    Array.from(rail.children).forEach((child: Element) => resizeObserver?.observe(child));
+    const mutationObserver = new MutationObserver(updateScrollButtons);
+    mutationObserver.observe(rail, { childList: true, subtree: true });
 
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       rail.removeEventListener("scroll", updateScrollButtons);
       window.removeEventListener("resize", updateScrollButtons);
       resizeObserver?.disconnect();
+      mutationObserver.disconnect();
     };
   }, [updateScrollButtons]);
 

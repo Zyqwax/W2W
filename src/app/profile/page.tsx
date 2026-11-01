@@ -53,8 +53,7 @@ export default function ProfilePage() {
       : null;
   const recentlyWatched = [...watched]
     .filter((movie) => movie.watchedAt != null && movie.watchedAt !== 0)
-    .sort((a, b) => b.watchedAt - a.watchedAt)
-    .slice(0, 6);
+    .sort((a, b) => new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime());
 
   // ── Presentational view ─────────────────────────────────────────────────
   return (

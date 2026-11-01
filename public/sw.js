@@ -1,92 +1,111 @@
-const CACHE_NAME = "w2w-cache-v1";
-const OFFLINE_URL = "/";
-
-const ASSETS_TO_CACHE = [
-  "/",
-  "/manifest.json",
-  "/icon.svg",
-  "/icon-192x192.png",
-  "/icon-512x512.png"
-];
+const VERSION = "v2";
+const SHELL_CACHE = `w2w-shell-${VERSION}`;
+const IMAGE_CACHE = `w2w-images-${VERSION}`;
+const PUBLIC_DATA_CACHE = `w2w-public-data-${VERSION}`;
+const OFFLINE_URL = "/offline.html";
+const MAX_IMAGE_ENTRIES = 160;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(SHELL_CACHE).then((cache) => cache.addAll([
+      OFFLINE_URL,
+      "/manifest.json",
+      "/icon.svg",
+      "/icon-192x192.png",
+      "/icon-512x512.png",
+    ])),
   );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
+  const currentCaches = new Set([SHELL_CACHE, IMAGE_CACHE, PUBLIC_DATA_CACHE]);
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then((names) => Promise.all(
+      names.filter((name) => name.startsWith("w2w-") && !currentCaches.has(name)).map((name) => caches.delete(name)),
+    )).then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
+async function fetchWithTimeout(request, timeout = 4500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(request, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok || response.type === "opaque") await cache.put(request, response.clone());
+  return response;
+}
+
+async function trimCache(cacheName, limit) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > limit) {
+    await Promise.all(keys.slice(0, keys.length - limit).map((key) => cache.delete(key)));
+  }
+}
+
+async function networkFirst(request, cacheName, fallbackUrl = null) {
+  const cache = await caches.open(cacheName);
+  try {
+    const response = await fetchWithTimeout(request);
+    if (response.ok && (response.type === "basic" || response.type === "cors")) await cache.put(request, response.clone());
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    if (fallbackUrl) return (await cache.match(fallbackUrl)) || Response.error();
+    return Response.json({ error: "Offline and no cached copy is available" }, { status: 503 });
+  }
+}
+
+function isPublicMovieData(requestUrl) {
+  const path = requestUrl.searchParams.get("path") || "";
+  return requestUrl.searchParams.get("collection") !== "1"
+    ? /^movies\/[^/]+(?:\/(?:localizations|providers)\/[^/]+)?$/.test(path)
+    : path === "movies" || /^movies\/[^/]+\/(?:localizations|providers)$/.test(path);
+}
+
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+  if (request.method !== "GET") return;
 
-  // For TMDB API requests, try network first, then cache
-  if (event.request.url.includes("api.themoviedb.org")) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clonedResponse = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clonedResponse);
-          });
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
+  const url = new URL(request.url);
+  if (url.origin === self.location.origin && url.pathname === "/api/data" && isPublicMovieData(url)) {
+    event.respondWith(networkFirst(request, PUBLIC_DATA_CACHE));
     return;
   }
 
-  // For TMDB Images, use Cache First strategy and save to cache
-  if (event.request.url.includes("image.tmdb.org")) {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request).then((networkResponse) => {
-          // Only cache successful image responses
-          if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open("w2w-images-v1").then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          }
-          return networkResponse;
-        });
-      })
-    );
+  if (url.hostname === "image.tmdb.org") {
+    event.respondWith(cacheFirst(request, IMAGE_CACHE).then((response) => {
+      void trimCache(IMAGE_CACHE, MAX_IMAGE_ENTRIES);
+      return response;
+    }));
     return;
   }
 
-  // For navigation requests (HTML), try network first, fallback to offline URL
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
-    );
+  if (url.hostname === "api.themoviedb.org") {
+    event.respondWith(networkFirst(request, PUBLIC_DATA_CACHE));
     return;
   }
 
-  // For other static assets, try cache first, then network
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  if (url.origin !== self.location.origin) return;
+
+  if (url.pathname.startsWith("/_next/static/") || url.pathname === "/manifest.json" || url.pathname.startsWith("/icon-")) {
+    event.respondWith(cacheFirst(request, SHELL_CACHE));
+    return;
+  }
+
+  if (request.mode === "navigate") {
+    event.respondWith(networkFirst(request, SHELL_CACHE, OFFLINE_URL));
+  }
 });

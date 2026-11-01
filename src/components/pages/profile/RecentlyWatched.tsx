@@ -19,7 +19,7 @@ export default function RecentlyWatched({ movies = [], t }) {
           {t("profile.all")}
         </Link>
       </div>
-      {movies.length ? <MovieRow movies={movies.slice(0, 10)} watchedLabel={t("profile.watched")} /> : (
+      {movies.length ? <MovieRow movies={movies} watchedLabel={t("profile.watched")} /> : (
         <div className="flex min-h-36 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg/60 px-5 py-6 text-center">
           <p className="text-sm text-muted">{t("profile.emptyWatched")}</p>
           <Link href="/search" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-semibold text-[#111113] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
