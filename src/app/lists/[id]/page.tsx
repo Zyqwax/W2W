@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { collection, doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, doc, onSnapshot } from "@/lib/store-client";
+import { db } from "@/lib/db-client";
 import { useAuth } from "@/context/AuthContext";
 import { fetchAndCacheMovie } from "@/lib/tmdb";
 import { getLanguageConfig, translate } from "@/lib/i18n";

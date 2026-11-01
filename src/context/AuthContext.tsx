@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, type User as FirebaseUser } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { authClient } from "@/lib/auth-client";
+import { db } from "@/lib/db-client";
+import { doc, getDoc, setDoc, serverTimestamp } from "@/lib/store-client";
 import { DEFAULT_LANGUAGE, DEFAULT_REGION, normalizeLanguage, normalizeRegion } from "@/lib/i18n";
 import type { AuthContextType, LanguageCode, RegionCode } from "@/types";
 
@@ -20,47 +20,62 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const sessionState = authClient.useSession();
+  const session = sessionState.data as unknown as { user: { id: string; name: string; email: string; image?: string | null } } | null;
+  const isPending = sessionState.isPending;
+  const rawUser = session?.user;
+  const user = useMemo(() => rawUser ? ({
+    ...rawUser,
+    uid: rawUser.id,
+    displayName: rawUser.name,
+    photoURL: rawUser.image,
+  }) as AuthContextType["user"] : null, [rawUser]);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const loading = isPending || profileLoading;
   const [language, setLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE);
   const [region, setRegion] = useState<RegionCode>(DEFAULT_REGION);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
-      setUser(nextUser);
+    let active = true;
+    const loadProfile = async () => {
       setLanguage(DEFAULT_LANGUAGE);
       setRegion(DEFAULT_REGION);
 
-      if (nextUser) {
-        try {
-          const userRef = doc(db, "users", nextUser.uid);
+      try {
+        if (user) {
+          const userRef = doc(db, "users", user.uid);
           const profileSnap = await getDoc(userRef);
           const profile = profileSnap.exists() ? profileSnap.data() : {};
-          setLanguage(normalizeLanguage(profile.language));
-          setRegion(normalizeRegion(profile.region));
+          if (active) {
+            setLanguage(normalizeLanguage(profile.language));
+            setRegion(normalizeRegion(profile.region));
+          }
 
           // Save basic profile info without replacing existing preferences.
           await setDoc(userRef, {
-            uid: nextUser.uid,
-            displayName: nextUser.displayName,
-            photoURL: nextUser.photoURL,
-            email: nextUser.email,
+            uid: user.uid,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            email: user.email,
             lastSeen: serverTimestamp()
           }, { merge: true });
-        } catch (error) {
-          console.error("Error loading user profile:", error);
         }
+      } catch (error) {
+        console.error("Error loading user profile:", error);
+      } finally {
+        if (active) setProfileLoading(false);
       }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+    };
+    if (!isPending) {
+      setProfileLoading(true);
+      void loadProfile();
+    }
+    return () => { active = false; };
+  }, [isPending, rawUser, user]);
 
   const loginWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await authClient.signIn.social({ provider: "google", callbackURL: "/" });
     } catch (error) {
       console.error("Google login failed", error);
     }
@@ -68,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      await authClient.signOut();
     } catch (error) {
       console.error("Logout failed", error);
     }

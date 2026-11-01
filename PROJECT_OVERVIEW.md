@@ -1,5 +1,7 @@
 # W2W — What to Watch
 
+> Historical project map from before the PostgreSQL/Better Auth transition. Its Firebase-specific details are obsolete. For current setup and architecture, see [README.md](README.md); PostgreSQL schema is in `src/lib/db/schema.ts` and auth configuration is in `src/lib/auth.ts`.
+
 Bu dosya, projeye yeni katılan bir agent veya geliştirici için mevcut kaynak koddan çıkarılmış proje haritasıdır. Route, veri modeli ve davranış açıklamaları mevcut checkout'taki kodu yansıtır.
 
 ## 1. Projenin amacı

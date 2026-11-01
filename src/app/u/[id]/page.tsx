@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAppData } from "@/context/AppDataContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, use } from "react";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/db-client";
 import {
   doc,
   getDoc,
@@ -15,7 +15,7 @@ import {
   deleteDoc,
   serverTimestamp,
   where,
-} from "firebase/firestore";
+} from "@/lib/store-client";
 import PublicProfileView, {
   PublicProfileLoading,
   PublicProfileNotFound,

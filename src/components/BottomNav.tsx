@@ -6,9 +6,9 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "@/lib/store-client";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/db-client";
 import { translate } from "@/lib/i18n";
 import Avatar from "@/components/ui/Avatar";
 

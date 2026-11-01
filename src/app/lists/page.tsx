@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc, updateDoc, serverTimestamp } from "@/lib/store-client";
 import { useRouter } from "next/navigation";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/db-client";
 import { useAuth } from "@/context/AuthContext";
 import { ensureDefaultLists, generateListId } from "@/lib/user-lists";
 import { translate } from "@/lib/i18n";

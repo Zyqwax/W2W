@@ -1,5 +1,5 @@
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "@/lib/store-client";
+import { db } from "@/lib/db-client";
 import type { Movie, ProvidersData } from "@/types";
 
 function movieRef(id: string | number) {

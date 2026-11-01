@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ChevronDown, Link2 } from "lucide-react";
+import { Globe2, Link2 } from "lucide-react";
 
 const providerGroups = [
   ["flatrate", "subscription"],
@@ -29,7 +29,7 @@ export default function ProviderList({ providers, loading, error, regionLabel, t
     <section className="border-t border-[--color-border] py-5" aria-labelledby="movie-providers-heading">
       <div className="flex items-center justify-between gap-4">
         <h2 id="movie-providers-heading" className="font-syne text-base font-semibold text-text">{t("movie.watchWhere")}</h2>
-        <span className="inline-flex items-center gap-1 text-xs text-muted">{regionLabel}<ChevronDown size={13} aria-hidden="true" /></span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted"><Globe2 size={13} aria-hidden="true" />{regionLabel}</span>
       </div>
 
       {loading && <div className="mt-4 flex items-center gap-2 text-sm text-muted" role="status"><span className="h-4 w-4 animate-spin rounded-full border-2 border-[--color-border] border-t-accent" />{t("common.loading")}</div>}

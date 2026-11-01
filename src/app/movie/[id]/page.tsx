@@ -6,7 +6,7 @@ import { useAppData } from "@/context/AppDataContext";
 import { useRouter } from "next/navigation";
 import { fetchAndCacheMovie, fetchWatchProviders } from "@/lib/tmdb";
 import { getLanguageConfig, getRegionLabel, translate } from "@/lib/i18n";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/db-client";
 import {
   doc,
   getDoc,
@@ -17,7 +17,7 @@ import {
   serverTimestamp,
   updateDoc,
   arrayUnion,
-} from "firebase/firestore";
+} from "@/lib/store-client";
 import dayjs from "dayjs";
 import "dayjs/locale/tr";
 import "dayjs/locale/en";
@@ -63,6 +63,8 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
   const [providersLoading, setProvidersLoading] = useState(true);
   const [providersError, setProvidersError] = useState(false);
   const [customLists, setCustomLists] = useState([]);
+  const [loadError, setLoadError] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   // ─── Data loading ───
   useEffect(() => {
@@ -70,169 +72,140 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
       router.push("/login");
       return;
     }
+    if (!user) return;
+
     let cancelled = false;
-    async function loadData() {
+    const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
+      setUserData(null);
+      setReview("");
       setProvidersLoading(true);
       setProvidersError(false);
-      const languageConfig = getLanguageConfig(language);
-      const [movieData, providerData] = await Promise.all([
-        fetchAndCacheMovie(movieId, languageConfig.tmdb, region),
-        fetchWatchProviders(movieId, region),
-      ]);
-      if (cancelled) return;
-      setMovie(movieData);
-      setProviders(providerData);
-      setProvidersError(providerData === null);
-      if (user && movieData) {
-        const currentState = await getUserMovieState(user.uid, movieId);
-        if (currentState) {
-          setUserData(currentState);
-          setReview(currentState.review || "");
+
+      try {
+        const languageConfig = getLanguageConfig(language);
+        const [movieResult, providerResult, stateResult, listsResult] = await Promise.allSettled([
+          fetchAndCacheMovie(movieId, languageConfig.tmdb, region),
+          fetchWatchProviders(movieId, region),
+          getUserMovieState(user.uid, movieId),
+          getDocs(collection(db, "users", user.uid, "lists")),
+        ]);
+        if (cancelled) return;
+
+        if (movieResult.status === "rejected" || !movieResult.value) {
+          setLoadError(true);
+          setMovie(null);
+          return;
         }
-        const listsSnapshot = await getDocs(collection(db, "users", user.uid, "lists"));
-        setCustomLists(listsSnapshot.docs.map((listDoc) => ({ id: listDoc.id, ...listDoc.data() } as any)).filter((list: any) => list.type === "custom"));
+
+        setMovie(movieResult.value);
+        setProviders(providerResult.status === "fulfilled" ? providerResult.value : null);
+        setProvidersError(providerResult.status === "rejected" || providerResult.value === null);
+        const currentState = stateResult.status === "fulfilled" ? stateResult.value : null;
+        setUserData(currentState);
+        setReview(currentState?.review || "");
+        const listDocs = listsResult.status === "fulfilled" ? listsResult.value.docs : [];
+        setCustomLists(listDocs.map((listDoc) => ({ id: listDoc.id, ...listDoc.data() } as any)).filter((list: any) => list.type === "custom"));
+      } catch (error) {
+        console.error("Failed to load movie page", error);
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          setProvidersLoading(false);
+        }
       }
-      setLoading(false);
-      setProvidersLoading(false);
-    }
-    if (user) loadData();
-    return () => {
-      cancelled = true;
     };
-  }, [user, authLoading, movieId, router, language, region]);
+
+    void loadData();
+    return () => { cancelled = true; };
+  }, [user?.uid, authLoading, movieId, router, language, region]);
 
   // ─── Watch history and status CRUD ───
-  const addWatchEntry = async (timestampMs) => {
+  const runAction = async (action) => {
     setSaving(true);
-    const existingHistory = userData?.watchHistory || [];
+    setActionError("");
+    try {
+      await action();
+    } catch (error) {
+      console.error("Movie action failed", error);
+      setActionError(language === "tr" ? "Kaydedilemedi. Lütfen tekrar dene." : "Could not save. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveWatchedEntry = async (timestampMs) => {
+    const addedAt = userData?.addedAt || Date.now();
     const newData = {
       title: movie.title,
       posterPath: movie.posterPath,
       status: "watched",
       watchedAt: timestampMs,
-      watchHistory: [{ ts: timestampMs }, ...existingHistory],
+      watchHistory: [{ ts: timestampMs }, ...(userData?.watchHistory || [])],
       rating: userData?.rating || 0,
       review: review || "",
-      addedAt: userData?.addedAt || Date.now(),
+      addedAt,
       isWatched: true,
     };
     await Promise.all([
       removeWishlistMovie(user.uid, movieId),
-      saveWatchedMovie(user.uid, movieId, { title: movie.title, posterPath: movie.posterPath, addedAt: newData.addedAt }),
+      saveWatchedMovie(user.uid, movieId, { title: movie.title, posterPath: movie.posterPath, addedAt }),
       saveWatchLog(user.uid, movieId, newData),
     ]);
-    setUserData({ ...newData, status: "watched" });
-    setSaving(false);
+    setUserData(newData);
   };
 
-  const addWatchEntryNoDate = async () => {
-    setSaving(true);
-    const existingHistory = userData?.watchHistory || [];
-    const newData = {
-      title: movie.title,
-      posterPath: movie.posterPath,
-      status: "watched",
-      watchedAt: null,
-      watchHistory: [{ ts: null }, ...existingHistory],
-      rating: userData?.rating || 0,
-      review: review || "",
-      addedAt: userData?.addedAt || Date.now(),
-      isWatched: true,
-    };
-    await Promise.all([
-      removeWishlistMovie(user.uid, movieId),
-      saveWatchedMovie(user.uid, movieId, { title: movie.title, posterPath: movie.posterPath, addedAt: newData.addedAt }),
-      saveWatchLog(user.uid, movieId, newData),
-    ]);
-    setUserData({ ...newData, status: "watched" });
-    setSaving(false);
-  };
-
-  const watchNow = () => addWatchEntry(Date.now());
   const handlePastDate = async (dateStr) => {
     setShowPastModal(false);
-    await addWatchEntry(dayjs(dateStr).endOf("day").valueOf());
+    await runAction(() => saveWatchedEntry(dayjs(dateStr).endOf("day").valueOf()));
   };
 
   const updateStatus = async (newStatus) => {
-    setSaving(true);
-    if (newStatus === "wishlist") {
-      const wishlistData = { title: movie.title, posterPath: movie.posterPath, status: "wishlist", addedAt: userData?.addedAt || Date.now() };
-      await Promise.all([
-        saveWishlistMovie(user.uid, movieId, wishlistData),
-        removeWatchedMovie(user.uid, movieId),
-        saveWatchLog(user.uid, movieId, { ...wishlistData, isWatched: false, watchHistory: [] }),
-      ]);
-      setUserData({ ...userData, ...wishlistData, status: "wishlist", isWatched: false, watchHistory: [] });
-      setSaving(false);
-      return;
-    }
-    const newData = {
-      title: movie.title,
-      posterPath: movie.posterPath,
-      status: newStatus,
-      watchedAt: newStatus === "watched" ? Date.now() : null,
-      watchHistory: userData?.watchHistory || [],
-      rating: userData?.rating || 0,
-      review: review || "",
-      addedAt: userData?.addedAt || Date.now(),
-      isWatched: true,
-    };
+    if (newStatus !== "wishlist") return;
+    const wishlistData = { title: movie.title, posterPath: movie.posterPath, status: "wishlist", addedAt: userData?.addedAt || Date.now() };
     await Promise.all([
-      removeWishlistMovie(user.uid, movieId),
-      saveWatchedMovie(user.uid, movieId, { title: movie.title, posterPath: movie.posterPath, addedAt: newData.addedAt }),
-      saveWatchLog(user.uid, movieId, newData),
+      saveWishlistMovie(user.uid, movieId, wishlistData),
+      removeWatchedMovie(user.uid, movieId),
+      saveWatchLog(user.uid, movieId, { ...wishlistData, isWatched: false, watchHistory: [] }),
     ]);
-    setUserData({ ...newData, status: "watched" });
-    setSaving(false);
+    setUserData({ ...wishlistData, status: "wishlist", isWatched: false, watchHistory: [] });
   };
 
   const removeMovie = async () => {
-    setSaving(true);
     await Promise.all([
       removeWishlistMovie(user.uid, movieId),
       removeWatchedMovie(user.uid, movieId),
       removeWatchLog(user.uid, movieId),
     ]);
     setUserData(null);
-    setSaving(false);
   };
+
   const removeWatchEntry = async (idx) => {
-    const newHistory = (userData.watchHistory || []).filter((_, i) => i !== idx);
+    const newHistory = (userData?.watchHistory || []).filter((_, i) => i !== idx);
     const hasHistory = newHistory.length > 0;
-    const newData = {
-      ...userData,
-      watchHistory: newHistory,
-      watchedAt: hasHistory ? newHistory[0].ts : null,
-      status: hasHistory ? "watched" : null,
-      isWatched: hasHistory,
-    };
+    const newData = { ...userData, watchHistory: newHistory, watchedAt: hasHistory ? newHistory[0].ts : null, status: hasHistory ? "watched" : null, isWatched: hasHistory };
     if (hasHistory) {
       await saveWatchLog(user.uid, movieId, newData);
     } else {
-      await Promise.all([
-        removeWatchedMovie(user.uid, movieId),
-        saveWatchLog(user.uid, movieId, newData),
-      ]);
+      await Promise.all([removeWatchedMovie(user.uid, movieId), saveWatchLog(user.uid, movieId, newData)]);
     }
-    setUserData(newData);
+    setUserData(hasHistory ? newData : null);
   };
 
   // ─── Rating and review CRUD ───
   const updateRating = async (rating) => {
     if (!userData) return;
     const newData = { ...userData, rating };
-    setUserData(newData);
     await saveWatchLog(user.uid, movieId, newData);
+    setUserData(newData);
   };
   const saveReview = async () => {
-    setSaving(true);
     if (!userData) return;
     const newData = { ...userData, review };
-    setUserData(newData);
     await saveWatchLog(user.uid, movieId, newData);
-    setSaving(false);
+    setUserData(newData);
   };
 
   // ─── Recommendation CRUD ───
@@ -277,71 +250,73 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
     }, { merge: true });
   };
 
-  if (authLoading || !user || loading)
-    return <PageLoading />;
-  if (!movie) return <div className="mt-10 bg-bg p-4 text-center text-muted">{t("movie.notFound")}</div>;
+  if (authLoading || !user || loading) return <PageLoading />;
+  if (loadError || !movie) {
+    return (
+      <main className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-5 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">W2W</p>
+        <h1 className="mt-3 font-syne text-2xl font-bold text-text">{loadError ? (language === "tr" ? "Film bilgisi yüklenemedi" : "Movie details could not be loaded") : t("movie.notFound")}</h1>
+        <p className="mt-2 max-w-md text-sm leading-6 text-muted">{language === "tr" ? "Bağlantını kontrol edip tekrar deneyebilir veya önceki sayfaya dönebilirsin." : "Check your connection and try again, or return to the previous page."}</p>
+        <button type="button" onClick={() => router.back()} className="mt-5 min-h-11 rounded-xl border border-border px-4 text-sm font-semibold text-text transition hover:border-accent/50">{t("common.back")}</button>
+      </main>
+    );
+  }
   const watchHistory = userData?.watchHistory || [];
 
   return (
-    <div className="min-h-full bg-bg pb-8 text-text">
+    <div className="min-h-full bg-bg pb-10 text-text">
       {showPastModal && <PastDateModal onConfirm={handlePastDate} onClose={() => setShowPastModal(false)} t={t} />}
       <MovieRecommendation
         open={showRecommendModal}
         friends={friends}
         movieTitle={movie.title}
         onClose={() => setShowRecommendModal(false)}
-        onSelect={recommendMovie}
+        onSelect={(friendUid) => runAction(() => recommendMovie(friendUid))}
         t={t}
       />
-      <MovieHero movie={movie} onBack={() => router.back()} t={t} />
+      <MovieHero movie={movie} userStatus={userData?.status} onBack={() => router.back()} t={t} />
 
-      <main className="mx-auto max-w-[1480px] px-4 pb-8 sm:px-7 lg:px-10">
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] lg:gap-10">
-          <aside className="order-1 rounded-2xl border border-border bg-surface p-4 shadow-sm lg:sticky lg:top-24 lg:p-6">
+      <main className="mx-auto max-w-[1480px] px-4 pb-8 pt-5 sm:px-7 sm:pt-7 lg:px-10">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)] lg:gap-7">
+          <aside className="order-1 space-y-4">
+            <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
             <WatchedActions
               userData={userData}
               language={language}
               saving={saving}
-              onWatchNow={watchNow}
+              onWatchNow={() => runAction(() => saveWatchedEntry(Date.now()))}
               onWatchPast={() => setShowPastModal(true)}
-              onWatchNoDate={addWatchEntryNoDate}
-              onUpdateStatus={updateStatus}
-              onRemove={removeMovie}
+              onWatchNoDate={() => runAction(() => saveWatchedEntry(null))}
+              onUpdateStatus={(status) => runAction(() => updateStatus(status))}
+              onRemove={() => runAction(removeMovie)}
               onRecommend={() => setShowRecommendModal(true)}
               onRatingFocus={() => document.getElementById("movie-rating")?.scrollIntoView({ behavior: "smooth", block: "center" })}
               customLists={customLists}
-              onAddToCustomList={addToCustomList}
+              onAddToCustomList={(listId) => runAction(() => addToCustomList(listId))}
               t={t}
             />
+            {actionError && <p role="alert" className="mt-3 rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-xs leading-5 text-danger">{actionError}</p>}
+            </section>
+            <section className="rounded-2xl border border-border bg-surface px-4 shadow-sm sm:px-5">
+              <ProviderList providers={providers} loading={providersLoading} error={providersError} regionLabel={getRegionLabel(region, language)} t={t} />
+            </section>
+            {userData?.status === "watched" && (
+              <section className="overflow-hidden rounded-2xl border border-border bg-surface px-4 shadow-sm sm:px-5" aria-label={t("movie.rating")}>
+                <RatingReview userData={userData} language={language} review={review} saving={saving} onRating={(rating) => runAction(() => updateRating(rating))} onReviewChange={setReview} onSaveReview={() => runAction(saveReview)} t={t} />
+                <WatchHistory history={watchHistory} language={language} onRemove={(index) => runAction(() => removeWatchEntry(index))} t={t} />
+              </section>
+            )}
           </aside>
 
-          <div className="order-2 min-w-0 divide-y divide-border rounded-2xl border border-border bg-surface px-5 shadow-sm sm:px-7">
-            <ProviderList
-              providers={providers}
-              loading={providersLoading}
-              error={providersError}
-              regionLabel={getRegionLabel(region, language)}
-              t={t}
-            />
-
-            <section className="space-y-3 py-6" aria-labelledby="movie-overview-heading">
-              <h2 id="movie-overview-heading" className="text-xl font-extrabold text-text">{t("movie.overview")}</h2>
-              <p className="max-w-3xl text-sm leading-7 text-muted">{movie.overview || t("movie.missingOverview")}</p>
+          <div className="order-2 min-w-0 space-y-4">
+            <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7" aria-labelledby="movie-overview-heading">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-accent">{language === "tr" ? "Hikâye" : "The story"}</p>
+              <h2 id="movie-overview-heading" className="font-syne text-xl font-bold text-text">{t("movie.overview")}</h2>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-muted sm:text-base">{movie.overview || t("movie.missingOverview")}</p>
             </section>
 
-            <CastRow cast={movie.cast} t={t} />
-            <TrailerButton trailer={movie.trailer} t={t} />
-            <RatingReview
-              userData={userData}
-              language={language}
-              review={review}
-              saving={saving}
-              onRating={updateRating}
-              onReviewChange={setReview}
-              onSaveReview={saveReview}
-              t={t}
-            />
-            <WatchHistory history={watchHistory} language={language} onRemove={removeWatchEntry} t={t} />
+            {movie.cast?.length > 0 && <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7"><CastRow cast={movie.cast} t={t} /></section>}
+            {movie.trailer && <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7"><TrailerButton trailer={movie.trailer} t={t} /></section>}
           </div>
         </div>
       </main>

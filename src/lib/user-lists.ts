@@ -1,5 +1,5 @@
-import { collection, deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, deleteDoc, doc, getDoc, setDoc } from "@/lib/store-client";
+import { db } from "@/lib/db-client";
 import type { UserMovieState, UserList } from "@/types";
 
 const LIST_ID_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -50,7 +50,7 @@ export async function getUserMovieState(uid: string, movieId: string | number): 
   ]);
   const wishlist = wishlistSnap.exists() ? wishlistSnap.data() : null;
   const watchLog = watchLogSnap.exists() ? watchLogSnap.data() : null;
-  if (!wishlist && !watchLog) return null;
+  if (!wishlist && !watchLog?.isWatched) return null;
   return {
     ...(wishlist || {}),
     ...(watchLog || {}),

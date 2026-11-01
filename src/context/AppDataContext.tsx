@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from "react";
-import { db } from "@/lib/firebase";
-import { collection, query, onSnapshot, type Unsubscribe } from "firebase/firestore";
+import { db } from "@/lib/db-client";
+import { collection, query, onSnapshot, type Unsubscribe } from "@/lib/store-client";
 import { useAuth } from "@/context/AuthContext";
 import { fetchAndCacheMovie } from "@/lib/tmdb";
 import { getLanguageConfig } from "@/lib/i18n";

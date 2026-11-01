@@ -1,5 +1,3 @@
-import type { User as FirebaseUser } from "firebase/auth";
-
 export type LanguageCode = "tr" | "en";
 export type RegionCode = "TR" | "US" | "GB" | "DE";
 
@@ -139,7 +137,15 @@ export interface ChatItem {
 }
 
 export interface AuthContextType {
-  user: FirebaseUser | null;
+  user: {
+    id: string;
+    uid: string;
+    name: string;
+    displayName: string;
+    email: string;
+    image?: string | null;
+    photoURL?: string | null;
+  } | null;
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;

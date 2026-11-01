@@ -1,11 +1,11 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "@/lib/store-client";
 import { useAuth } from "@/context/AuthContext";
 import { useAppData } from "@/context/AppDataContext";
 import { useRouter } from "next/navigation";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/db-client";
 import { fetchAndCacheMovie } from "@/lib/tmdb";
 import { getLanguageConfig, translate } from "@/lib/i18n";
 import PublicListDetailView from "@/components/pages/public-profile/PublicListDetailView";

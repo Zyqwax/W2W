@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/db-client";
+import { collection, getDocs } from "@/lib/store-client";
 import { DEFAULT_LANGUAGE, LANGUAGES, translate } from "@/lib/i18n";
 import { fetchAndCacheMovie } from "@/lib/tmdb";
 import RefreshCacheView from "@/components/pages/refresh-cache/RefreshCacheView";
