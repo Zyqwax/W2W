@@ -96,10 +96,15 @@ export default function HorizontalMovieRail({ children, className = "" }) {
   };
 
   const handleWheel = (event) => {
-    if (event.deltaX !== 0 || event.shiftKey) {
-      event.preventDefault();
-      railRef.current?.scrollBy({ left: event.deltaX || event.deltaY, behavior: "auto" });
-    }
+    const rail = railRef.current;
+    if (!rail) return;
+    const delta = event.deltaX || event.deltaY;
+    if (!delta) return;
+    const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+    const canMove = delta < 0 ? rail.scrollLeft > 0 : rail.scrollLeft < maxScrollLeft - 1;
+    if (!canMove) return;
+    event.preventDefault();
+    rail.scrollBy({ left: delta, behavior: "auto" });
   };
 
   const scrollByPage = (direction) => {
@@ -115,10 +120,20 @@ export default function HorizontalMovieRail({ children, className = "" }) {
     dragRef.current.moved = false;
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      scrollByPage(event.key === "ArrowRight" ? 1 : -1);
+    }
+  };
+
   return (
     <div className="group/rail relative">
       <div
         ref={railRef}
+        role="region"
+        aria-label="Yatay kaydırılabilir içerik"
+        tabIndex={0}
         className={`md:cursor-grab md:active:cursor-grabbing ${className}`}
         style={{
           touchAction: "pan-x pan-y",
@@ -133,6 +148,7 @@ export default function HorizontalMovieRail({ children, className = "" }) {
         onPointerUp={stopDragging}
         onPointerCancel={stopDragging}
         onWheel={handleWheel}
+        onKeyDown={handleKeyDown}
         onClickCapture={preventDraggedClick}
       >
         {children}
@@ -142,7 +158,7 @@ export default function HorizontalMovieRail({ children, className = "" }) {
           type="button"
           aria-label="Sola kaydır"
           onClick={() => scrollByPage(-1)}
-          className="absolute left-1 top-1/2 z-10 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:flex"
+          className="absolute left-1 top-1/2 z-10 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <ChevronLeft size={20} aria-hidden="true" />
         </button>
@@ -152,7 +168,7 @@ export default function HorizontalMovieRail({ children, className = "" }) {
           type="button"
           aria-label="Sağa kaydır"
           onClick={() => scrollByPage(1)}
-          className="absolute right-1 top-1/2 z-10 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:flex"
+          className="absolute right-1 top-1/2 z-10 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <ChevronRight size={20} aria-hidden="true" />
         </button>

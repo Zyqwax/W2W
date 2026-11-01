@@ -92,7 +92,7 @@ export default function HomeListShowcase({ t, lists, listMovies, watchedMovieIds
         if (!movies.length) return null; // Boş listeleri gizle veya placeholder göster
 
         return (
-          <article key={list.id} className="group/section">
+          <article key={list.id} className="group/section min-w-0 w-full">
             <div className="mb-5 flex items-end justify-between px-1">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2.5">
@@ -114,7 +114,7 @@ export default function HomeListShowcase({ t, lists, listMovies, watchedMovieIds
               </Link>
             </div>
 
-            <HorizontalMovieRail className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
+            <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
               {movies.map((movie) => (
                 <ShowcaseMovieCard key={movie.id} movie={movie} watchedLabel={t("profile.watched")} />
               ))}
