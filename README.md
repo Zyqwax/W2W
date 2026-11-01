@@ -1,162 +1,83 @@
-# 🎬 W2W — What to Watch
+# W2W — What to Watch
 
-**W2W (What to Watch)**, kullanıcıların TMDB (The Movie Database) üzerinden filmleri keşfetmesini, izleme listeleri (wishlist) ve özel listeler oluşturmasını, izleme geçmişini detaylı biçimde takip edip puanlamasını ve profillerini arkadaşlarıyla paylaşmasını sağlayan modern, mobil öncelikli bir **Next.js (App Router)** ve **Firebase Firestore** web/PWA uygulamasıdır.
+W2W, izlemek istediğin ve izlediğin filmleri düzenlemene yardımcı olan koyu temalı bir film takip uygulamasıdır. TMDB ile film keşfedebilir, listeler oluşturabilir, izleme geçmişini ve kişisel puanlarını kaydedebilir, herkese açık film koleksiyonlarını paylaşabilirsin.
 
----
+**GitHub:** [github.com/Zyqwax/W2W](https://github.com/Zyqwax/W2W)
 
-## 🚀 Özellikler
+## Özellikler
 
-- **🔍 Film Keşfi ve Arama:**
-  - TMDB günlük trendler listesi.
-  - Hızlı ve debounce destekli anlık film araması.
-  - Film detay sayfası: Özet, türler, oyuncu kadrosu, YouTube fragmanı ve yaş/süre bilgileri.
-  - Yerel yayın sağlayıcıları (Watch Providers: Netflix, Disney+, Prime Video vb. - bölgeye göre).
+- TMDB trendlerinde ve tür ya da yıla göre film keşfi; başlığa göre arama.
+- İzleme listesi, izlenenler arşivi ve özel film listeleri. Listeler herkese açık veya gizli olabilir.
+- İzlenme durumu, izleme tarihleri, kişisel puan ve notlar.
+- Film ayrıntıları: özet, oyuncular, fragman ve bölgeye göre izleme seçenekleri.
+- Profil istatistikleri, arkadaşlar ve herkese açık kullanıcı profilleri.
+- Türkçe ve İngilizce arayüz; Türkiye, ABD, Birleşik Krallık ve Almanya bölge tercihleri.
+- Mobil ve masaüstü uyumlu tasarım, kurulabilir PWA.
 
-- **📋 Liste ve Kütüphane Yönetimi:**
-  - **İzleme Listesi (Wishlist):** İzlenmek istenen filmleri hızlıca kaydetme.
-  - **Özel Listeler:** İstenilen temada yeni listeler oluşturma, düzenleme ve ana sayfada sabitleme.
-  - **Görünürlük Kontrolü:** Listeleri herkese açık (`public`) ya da gizli (`private`) olarak ayarlayabilme.
+> Mesajlaşma alanı şu anda hazırlık ekranı gösteriyor; sohbet özellikleri henüz kullanıma açık değil.
 
-- **⏱️ İzleme Günlüğü (Watch Log):**
-  - Filmleri anında, geçmiş bir tarihle veya tarihsiz olarak izlendi işaretleme.
-  - Birden fazla kez izleme geçmişi (watch history timestamps) tutma.
-  - 10 üzerinden kişisel puanlama ve yazılı yorum/inceleme ekleme.
+## Teknolojiler
 
-- **👤 Profil ve Sosyal Etkileşim:**
-  - Kullanıcı izleme istatistikleri, arşiv ve ortalama puan özeti.
-  - Herkese açık kullanıcı profili (`/u/[id]`) ve profil bağlantısı paylaşımı.
-  - Arkadaşlık sistemi ve arkadaşlara doğrudan film önerme.
+- [Next.js](https://nextjs.org/) 16 ve [React](https://react.dev/) 19
+- [Tailwind CSS](https://tailwindcss.com/) 4 ve Lucide ikonları
+- [Firebase](https://firebase.google.com/) Authentication ve Cloud Firestore
+- [TMDB API](https://developer.themoviedb.org/)
+- [pnpm](https://pnpm.io/)
 
-- **🌐 Çoklu Dil ve Bölge Desteği:**
-  - Dil seçenekleri: Türkçe (`tr-TR`) ve İngilizce (`en-US`).
-  - Bölge seçenekleri: Türkiye (`TR`), ABD (`US`), İngiltere (`GB`), Almanya (`DE`).
-  - Firestore üzerinde çok dilli film metadata ve sağlayıcı önbellekleme (`localizations/{locale}`).
+## Geliştirme ortamını kurma
 
-- **📱 PWA & Mobil Öncelikli Tasarım:**
-  - Mobil cihazlarda uygulama hissi veren Bottom Navigation ve Responsive tasarım.
-  - Service Worker ile çevrimdışı önbellekleme ve PWA manifest (`standalone` mod).
-
----
-
-## 🛠️ Teknoloji Yığını
-
-- **Framework:** [Next.js](https://nextjs.org/) 16 (App Router)
-- **Kütüphane:** [React](https://react.dev/) 19
-- **Stil & Tasarım:** [Tailwind CSS](https://tailwindcss.com/) v4 & Lucide Icons
-- **Veritabanı & Kimlik Doğrulama:** [Firebase](https://firebase.google.com/) Client SDK (Authentication & Cloud Firestore)
-- **API Entegrasyonu:** [TMDB REST API](https://developer.themoviedb.org/)
-- **Tarih & Zaman:** [Day.js](https://day.js.org/)
-- **Paket Yöneticisi:** [pnpm](https://pnpm.io/)
-
----
-
-## 📁 Proje Yapısı
-
-```text
-w2w/
-├── public/                # PWA manifest, service worker (sw.js) ve statik varlıklar
-├── src/
-│   ├── app/               # Next.js App Router sayfaları ve layout
-│   │   ├── layout.js      # Global layout ve Context sağlayıcıları
-│   │   ├── page.js        # Ana kütüphane & dashboard
-│   │   ├── login/         # Google Auth giriş sayfası
-│   │   ├── search/        # TMDB arama & trendler
-│   │   ├── movie/[id]/    # Film detay, izleme aksiyonları, yorum
-│   │   ├── lists/         # Liste yönetimi ve [id] detay sayfası
-│   │   ├── profile/       # Kullanıcı profili ve ayarlar
-│   │   ├── u/[id]/        # Herkese açık kullanıcı profili
-│   │   ├── messages/      # Sohbet ve öneri ekranları
-│   │   └── refresh-cache/ # Film TMDB cache tazeleme aracı
-│   ├── components/        # Yeniden kullanılabilir UI bileşenleri
-│   │   ├── pages/         # Sayfalara özel görsel bileşenler
-│   │   ├── ui/            # Buton, modal, kart gibi temel arayüz elemanları
-│   │   ├── BottomNav.js   # Mobil alt bar ve masaüstü navigasyonu
-│   │   └── ...
-│   ├── context/           # AuthContext & AppDataContext (realtime Firestore dinleyicileri)
-│   └── lib/               # Firebase istemcisi, TMDB istekleri, i18n ve yardımcı fonksiyonlar
-└── PROJECT_OVERVIEW.md    # Geliştiriciler ve modeller için detaylı teknik harita
-```
-
----
-
-## ⚙️ Kurulum ve Başlangıç
-
-### Ön Gereksinimler
-
-- [Node.js](https://nodejs.org/) (v18.17 veya üzeri önerilir)
-- [pnpm](https://pnpm.io/) (`npm i -g pnpm`)
-- [TMDB API Anahtarı](https://developer.themoviedb.org/docs)
-- [Firebase Projesi](https://console.firebase.google.com/) (Google Authentication ve Cloud Firestore aktif edilmiş)
-
-### 1. Depoyu Klonlayın ve Bağımlılıkları Yükleyin
+Gereksinimler: Node.js ve pnpm, bir TMDB API anahtarı ve Google Authentication ile Cloud Firestore etkinleştirilmiş bir Firebase projesi.
 
 ```bash
-git clone https://github.com/kullanici-adi/w2w.git
-cd w2w
+git clone https://github.com/Zyqwax/W2W.git
+cd W2W
 pnpm install
+cp .env.example .env.local
 ```
 
-### 2. Ortam Değişkenlerini Tanımlayın
-
-`.env.example` dosyasını referans alarak kök dizinde `.env` (veya `.env.local`) oluşturun:
-
-```bash
-cp .env.example .env
-```
-
-Değişkenleri kendi anahtarlarınız ile doldurun:
+`.env.local` dosyasındaki TMDB ve Firebase değerlerini kendi projenin bilgileriyle doldur:
 
 ```env
-# TMDB API
 NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
 
-# Firebase Client Yapılandırması
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+```
 
-### 3. Uygulamayı Geliştirme Modunda Çalıştırın
+Geliştirme sunucusunu başlat:
 
 ```bash
 pnpm dev
 ```
 
-Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine giderek uygulamayı görüntüleyebilirsiniz.
+Uygulama varsayılan olarak [http://localhost:3000](http://localhost:3000) adresinde açılır.
 
----
-
-## 📜 Kullanılabilir Komutlar
+## Komutlar
 
 | Komut | Açıklama |
-|---|---|
-| `pnpm dev` | Geliştirme sunucusunu başlatır (`localhost:3000`). |
-| `pnpm build` | Üretim (production) derlemesini oluşturur. |
-| `pnpm start` | Üretim derlemesini başlatır. |
-| `pnpm lint` | ESLint ile kod kontrolü yapar. |
-| `pnpm migrate:firestore:movies` | Film cache verilerini kontrol eder / günceller. |
-| `pnpm migrate:firestore:lists` | Eski film modelini yeni list/watchLog modeline taşır. |
+| --- | --- |
+| `pnpm dev` | Geliştirme sunucusunu başlatır. |
+| `pnpm build` | Üretim derlemesini oluşturur. |
+| `pnpm start` | Üretim sunucusunu başlatır. |
+| `pnpm lint` | ESLint kontrollerini çalıştırır. |
 
----
+## Proje yapısı
 
-## 🗄️ Firestore Veri Modeli Özeti
+```text
+public/                 Statik dosyalar, PWA manifesti ve service worker
+src/app/                Next.js sayfaları ve yönlendirmeler
+src/components/         Uygulama kabuğu ve tekrar kullanılabilir arayüzler
+src/components/pages/   Sayfalara özel bileşenler
+src/context/            Kimlik doğrulama ve Firestore uygulama verileri
+src/lib/                Firebase, TMDB, çeviri ve liste yardımcıları
+```
 
-Uygulama, Firestore üzerinde aşağıdaki koleksiyon ve alt koleksiyon yapısını kullanır:
+## Veri ve servisler
 
-- `users/{uid}`: Kullanıcı profili, tercih edilen dil ve bölge.
-  - `lists/{listId}`: Varsayılan (`wishlist`, `watched`) ve özel listeler.
-    - `movies/{movieId}`: Listeye eklenen filmler.
-  - `watchLog/{movieId}`: İzlenme durumları, geçmiş zaman kayıtları, puan (`rating`) ve yorumlar (`review`).
-  - `friends/{friendUid}`: Eklenen arkadaşlar.
-- `movies/{movieId}`: TMDB'den çekilen filmlerin ortak cache verileri.
-  - `localizations/{locale}`: Başlık, özet, fragman ve oyuncu bilgileri.
-  - `providers/{region}`: Bölgesel izleme platformları (flatrate, rent, buy vb.).
-- `chats/{chatId}`: Kullanıcılar arası mesajlaşma ve film tavsiyesi kayıtları.
+Kullanıcı verileri Cloud Firestore’da tutulur. Kullanıcı belgelerinin altında profiller, tercihler, listeler, liste filmleri ve izleme günlükleri bulunur; TMDB film bilgileri ortak önbellekten sağlanır. Firebase ve TMDB anahtarlarını depoya ekleme; yerel geliştirme için `.env.local` kullan.
 
----
-
-## 📄 Lisans
-
-Bu proje kişisel kullanım ve geliştirme amaçlı hazırlanmıştır.
+Film bilgileri [TMDB](https://www.themoviedb.org/) tarafından sağlanır. W2W, TMDB tarafından onaylanmamış veya desteklenmemiştir.
