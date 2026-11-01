@@ -158,7 +158,7 @@ export default function HorizontalMovieRail({ children, className = "" }) {
           type="button"
           aria-label="Sola kaydır"
           onClick={() => scrollByPage(-1)}
-          className="absolute left-1 top-1/2 z-10 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="absolute left-1 top-1/2 z-10 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:flex"
         >
           <ChevronLeft size={20} aria-hidden="true" />
         </button>
@@ -168,7 +168,7 @@ export default function HorizontalMovieRail({ children, className = "" }) {
           type="button"
           aria-label="Sağa kaydır"
           onClick={() => scrollByPage(1)}
-          className="absolute right-1 top-1/2 z-10 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="absolute right-1 top-1/2 z-10 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/95 text-text shadow-lg shadow-bg/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:flex"
         >
           <ChevronRight size={20} aria-hidden="true" />
         </button>
