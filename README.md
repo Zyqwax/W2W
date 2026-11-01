@@ -25,41 +25,49 @@ W2W, izlemek istediğin ve izlediğin filmleri düzenlemene yardımcı olan koyu
 - [TMDB API](https://developer.themoviedb.org/)
 - [pnpm](https://pnpm.io/)
 
-## Geliştirme ortamını kurma
+## Docker ile çalıştırma
 
-Gereksinimler: Node.js, pnpm, çalışan yerel PostgreSQL sunucusu, TMDB API anahtarı ve Google OAuth Web istemcisi bilgileri.
+Gereksinimler: Docker Compose, TMDB API anahtarı ve Google OAuth Web istemcisi bilgileri.
 
 ```bash
 git clone https://github.com/Zyqwax/W2W.git
 cd W2W
+cp .env.example .env
+```
+
+`.env` dosyasına TMDB ve Google OAuth değerlerini yaz. Better Auth secret'ını üretip `.env` dosyasına ekle:
+
+```bash
+openssl rand -base64 32
+```
+
+Google OAuth istemcisinin yönlendirme adresi `http://localhost:3000/api/auth/callback/google` olmalı. Uygulama ve PostgreSQL'i başlat:
+
+```bash
+docker compose up --build
+```
+
+Compose, `db` servisi sağlıklı olduktan sonra Drizzle migration'larını uygular ve uygulamayı başlatır. Uygulama [http://localhost:3000](http://localhost:3000) adresinde, PostgreSQL ise host makinede `localhost:5433` portunda kullanılabilir. Uygulama konteynerinin `DATABASE_URL` değeri Compose tarafından `postgresql://w2w:w2w_dev_password@db:5432/w2w` olarak ayarlanır; host üzerinde `pnpm dev` veya Drizzle komutları çalıştırırken `.env` içindeki `DATABASE_URL` kullanılır.
+
+`.env` içindeki `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` ve `APP_PORT` değerleri Docker servislerini yapılandırır. Veritabanı verisi `postgres_data` adlı kalıcı Docker volume'ünde tutulur. Tamamen yeni ve boş bir veritabanıyla başlamak istersen `docker compose down -v` komutu bu volume'ü ve içindeki verileri siler.
+
+`NEXT_PUBLIC_TMDB_API_KEY` Next.js istemci koduna build sırasında eklendiğinden bu anahtarı değiştirdikten sonra `docker compose up --build` ile imajı yeniden oluştur.
+
+## Host üzerinde geliştirme
+
+Docker PostgreSQL'ini tek başına başlat:
+
+```bash
+docker compose up -d db
+```
+
+`.env` içindeki host bağlantı URL'si `postgresql://w2w:w2w_dev_password@localhost:5433/w2w` olarak ayarlanmıştır. Migration'ları uygula ve geliştirme sunucusunu başlat:
+
+```bash
 pnpm install
-cp .env.example .env.local
-```
-
-Önce mevcut yerel PostgreSQL sunucunda boş bir `w2w` veritabanı oluştur (`createdb w2w`). `.env.local` içindeki `DATABASE_URL` değerini o sunucunun rol/parola/port ayarlarına göre düzenle. Unix socket ve peer authentication kullanıyorsan örnek biçim: `postgresql://zyqwax@localhost/w2w?host=/run/postgresql`. TMDB ve Google OAuth değerlerini de doldur. Better Auth için rastgele bir `BETTER_AUTH_SECRET` üret (ör. `openssl rand -base64 32`). Google OAuth istemcisinin yönlendirme adresi `http://localhost:3000/api/auth/callback/google` olmalı.
-
-```env
-NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
-DATABASE_URL=postgres://YOUR_POSTGRES_USER:YOUR_POSTGRES_PASSWORD@localhost:5432/w2w
-BETTER_AUTH_SECRET=replace_with_a_random_secret_at_least_32_characters
-BETTER_AUTH_URL=http://localhost:3000
-GOOGLE_CLIENT_ID=your_google_oauth_client_id
-GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
-```
-
-Boş veritabanı şemasını oluştur:
-
-```bash
 pnpm db:migrate
-```
-
-Geliştirme sunucusunu başlat:
-
-```bash
 pnpm dev
 ```
-
-Uygulama varsayılan olarak [http://localhost:3000](http://localhost:3000) adresinde açılır.
 
 ## Komutlar
 
