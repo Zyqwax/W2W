@@ -15,7 +15,7 @@ function PosterCard({ movie, language }) {
     <Link href={`/movie/${movie.id}`} className="group block w-[145px] shrink-0 sm:w-[166px]">
       <div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-surface-2 shadow-sm ring-1 ring-black/5 transition duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
         {poster ? <Image src={`https://image.tmdb.org/t/p/w342${poster}`} alt={movie.title || "Film posteri"} fill sizes="(max-width: 640px) 145px, 166px" className="object-cover" unoptimized /> : <div className="grid h-full place-items-center text-muted"><Film /></div>}
-        {movie.voteAverage > 0 && <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-xs font-bold text-text shadow-sm"><Star size={12} className="fill-amber-500 text-amber-500" />{Number(movie.voteAverage).toFixed(1)}</span>}
+        {movie.voteAverage > 0 && <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/90 px-2 py-1 text-xs font-bold text-white shadow-md ring-1 ring-white/20 backdrop-blur-sm"><Star size={12} className="fill-amber-400 text-amber-400" />{Number(movie.voteAverage).toFixed(1)}</span>}
         {movie.isWatched && <span className="absolute bottom-2 left-2 rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-white">{language === "en" ? "Watched" : "İzlendi"}</span>}
       </div>
       <p className="mt-3 truncate text-sm font-bold text-text group-hover:text-accent">{movie.title}</p>

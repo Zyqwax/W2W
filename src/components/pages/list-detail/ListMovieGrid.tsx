@@ -171,8 +171,8 @@ export default function ListMovieGrid({
 
                     {/* Rating badge */}
                     {rating > 0 && (
-                      <span className="absolute bottom-2 right-2 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs">
-                        ★ {Number(rating).toFixed(1)}
+                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-md ring-1 ring-white/20 backdrop-blur-sm">
+                        <span className="text-amber-400">★</span> {Number(rating).toFixed(1)}
                       </span>
                     )}
 
