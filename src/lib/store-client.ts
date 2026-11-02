@@ -5,6 +5,9 @@ type DocRecord = { id: string; data: Record<string, any> };
 
 const API = "/api/data";
 const COLLECTION_POLL_MS = 4000;
+const REQUEST_CACHE_MS = 1200;
+const inFlightReads = new Map<string, Promise<unknown>>();
+const recentReads = new Map<string, { expiresAt: number; value: unknown }>();
 
 function makeUrl(ref: Ref) {
   const params = new URLSearchParams({ path: ref.path });
@@ -18,9 +21,29 @@ function makeUrl(ref: Ref) {
 }
 
 async function request(url: string, init?: RequestInit) {
+  const method = init?.method || "GET";
+  if (method === "GET") {
+    const cached = recentReads.get(url);
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
+    const pending = inFlightReads.get(url);
+    if (pending) return pending;
+  }
+  const execute = async () => {
   const response = await fetch(url, { ...init, headers: { "content-type": "application/json", ...init?.headers } });
   if (!response.ok) throw new Error(`Database request failed (${response.status})`);
   return response.status === 204 ? null : response.json();
+  };
+  if (method !== "GET") {
+    const value = await execute();
+    recentReads.clear();
+    return value;
+  }
+  const pending = execute().then((value) => {
+    recentReads.set(url, { value, expiresAt: Date.now() + REQUEST_CACHE_MS });
+    return value;
+  }).finally(() => inFlightReads.delete(url));
+  inFlightReads.set(url, pending);
+  return pending;
 }
 
 export function collection(_db: unknown, ...segments: (string | Ref)[]): Ref {

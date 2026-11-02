@@ -10,6 +10,7 @@ import { translate } from "@/lib/i18n";
 import ListGrid from "@/components/pages/lists/ListGrid";
 import NewListButton from "@/components/pages/lists/NewListButton";
 import PageLoading from "@/components/ui/PageLoading";
+import Skeleton from "@/components/ui/Skeleton";
 
 export default function ListsPage() {
   const { user, loading: authLoading, language } = useAuth();
@@ -22,6 +23,8 @@ export default function ListsPage() {
   const [createError, setCreateError] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
+  const [listsLoaded, setListsLoaded] = useState(false);
+  const [loadedListIds, setLoadedListIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -42,6 +45,10 @@ export default function ListsPage() {
         movieUnsubscribers.forEach((unsubscribe) => unsubscribe());
         movieUnsubscribers = new Map();
         setListMovies({});
+        setLoadedListIds([]);
+        // Default lists are created asynchronously on first visit; don't flash the
+        // empty state if the first poll wins that race.
+        if (nextLists.length > 0) setListsLoaded(true);
 
         nextLists.forEach((list) => {
           const unsubscribeMovies = onSnapshot(
@@ -49,8 +56,12 @@ export default function ListsPage() {
             (movieSnapshot) => {
               const movies = movieSnapshot.docs.map((movieDoc) => ({ id: movieDoc.id, ...movieDoc.data() }));
               setListMovies((current) => ({ ...current, [list.id]: movies }));
+              setLoadedListIds((current) => current.includes(list.id) ? current : [...current, list.id]);
             },
-            () => setListMovies((current) => ({ ...current, [list.id]: [] })),
+            () => {
+              setListMovies((current) => ({ ...current, [list.id]: [] }));
+              setLoadedListIds((current) => current.includes(list.id) ? current : [...current, list.id]);
+            },
           );
           movieUnsubscribers.set(list.id, unsubscribeMovies);
         });
@@ -58,6 +69,7 @@ export default function ListsPage() {
       () => {
         setLists([]);
         setListMovies({});
+        setListsLoaded(true);
       },
     );
 
@@ -121,9 +133,10 @@ export default function ListsPage() {
         <p className="text-sm font-semibold text-accent">{t("lists.eyebrow")}</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight text-text md:text-4xl">{t("lists.title")}</h1><p className="mt-2 text-sm text-muted">{language === "en" ? "Your saved films, organized your way." : "Kaydettiğin filmler, kendi düzenin."}</p>
       </header>
       {createError && <p role="alert" className="mb-5 rounded-xl border border-danger/20 bg-danger/5 px-4 py-3 text-sm font-medium text-danger">{language === "en" ? "The list could not be created. Try again." : "Liste oluşturulamadı. Yeniden dene."}</p>}
-      <ListGrid
+      {!listsLoaded ? <div className="space-y-10" aria-label={language === "tr" ? "Listeler yükleniyor" : "Loading lists"} aria-busy="true">{[0, 1].map((section) => <section key={section}><Skeleton className="mb-3" width="11rem" height="1.5rem" /><Skeleton className="mb-5" width="16rem" height="1rem" /><div className="grid gap-4 sm:grid-cols-2">{[0, 1].map((card) => <Skeleton key={card} className="rounded-2xl" width="100%" height="12rem" />)}</div></section>)}</div> : <ListGrid
         lists={lists}
         listMovies={listMovies}
+        loadedListIds={loadedListIds}
         t={t}
         editingId={editingId}
         editingName={editingName}
@@ -133,7 +146,7 @@ export default function ListsPage() {
         onVisibilityChange={changeVisibility}
         onDelete={deleteList}
         newListButton={<NewListButton name={name} creating={creating} onNameChange={(value) => { setName(value); setCreateError(false); }} onSubmit={createList} t={t} />}
-      />
+      />}
     </div>
   );
 }

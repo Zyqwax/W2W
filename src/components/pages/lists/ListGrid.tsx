@@ -1,9 +1,10 @@
 import ListCard from "@/components/pages/lists/ListCard";
+import Skeleton from "@/components/ui/Skeleton";
 
-export default function ListGrid({ lists, listMovies = {}, t, editingId, editingName, onEditStart, onEditingNameChange, onSave, onVisibilityChange, onDelete, newListButton }) {
+export default function ListGrid({ lists, listMovies = {}, loadedListIds = [], t, editingId, editingName, onEditStart, onEditingNameChange, onSave, onVisibilityChange, onDelete, newListButton }) {
   const defaultLists = ["wishlist", "watched"].map((id) => lists.find((list) => list.id === id)).filter(Boolean);
   const customLists = lists.filter((list) => list.type === "custom");
-  const renderCard = (list) => (
+  const renderCard = (list) => !loadedListIds.includes(list.id) ? <Skeleton key={list.id} className="rounded-2xl" width="100%" height="12rem" /> : (
     <ListCard
       key={list.id}
       list={list}

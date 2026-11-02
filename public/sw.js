@@ -68,6 +68,22 @@ async function networkFirst(request, cacheName, fallbackUrl = null) {
   }
 }
 
+async function staleWhileRevalidate(request, cacheName, event) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  const refresh = fetchWithTimeout(request).then(async (response) => {
+    if (response.ok && (response.type === "basic" || response.type === "cors")) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  });
+  if (cached) {
+    event.waitUntil(refresh.catch(() => {}));
+    return cached;
+  }
+  return refresh;
+}
+
 function isPublicMovieData(requestUrl) {
   const path = requestUrl.searchParams.get("path") || "";
   return requestUrl.searchParams.get("collection") !== "1"
@@ -81,7 +97,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin === self.location.origin && url.pathname === "/api/data" && isPublicMovieData(url)) {
-    event.respondWith(networkFirst(request, PUBLIC_DATA_CACHE));
+    event.respondWith(staleWhileRevalidate(request, PUBLIC_DATA_CACHE, event));
     return;
   }
 
@@ -94,7 +110,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.hostname === "api.themoviedb.org") {
-    event.respondWith(networkFirst(request, PUBLIC_DATA_CACHE));
+    event.respondWith(staleWhileRevalidate(request, PUBLIC_DATA_CACHE, event));
     return;
   }
 

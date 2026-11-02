@@ -6,11 +6,12 @@ import { useParams, useRouter } from "next/navigation";
 import { collection, doc, onSnapshot } from "@/lib/store-client";
 import { db } from "@/lib/db-client";
 import { useAuth } from "@/context/AuthContext";
-import { fetchAndCacheMovie } from "@/lib/tmdb";
+import { fetchAndCacheMovies } from "@/lib/tmdb";
 import { getLanguageConfig, translate } from "@/lib/i18n";
 import ListHeader from "@/components/pages/list-detail/ListHeader";
 import ListMovieGrid from "@/components/pages/list-detail/ListMovieGrid";
 import PageLoading from "@/components/ui/PageLoading";
+import Skeleton from "@/components/ui/Skeleton";
 
 export default function ListDetailPage() {
   const { id } = useParams();
@@ -25,6 +26,8 @@ export default function ListDetailPage() {
   const [wishlistFilter, setWishlistFilter] = useState("all");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listLoaded, setListLoaded] = useState(false);
+  const [moviesLoaded, setMoviesLoaded] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -36,13 +39,13 @@ export default function ListDetailPage() {
     if (!user || !listId) return undefined;
     const listUnsubscribe = onSnapshot(
       doc(db, "users", user.uid, "lists", listId),
-      (snapshot) => setList(snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as any) : null),
-      () => setList(null),
+      (snapshot) => { setList(snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as any) : null); setListLoaded(true); },
+      () => { setList(null); setListLoaded(true); },
     );
     const moviesUnsubscribe = onSnapshot(
       collection(db, "users", user.uid, "lists", listId, "movies"),
-      (snapshot) => setRawMovies(snapshot.docs.map((movieDoc) => ({ id: movieDoc.id, ...movieDoc.data() }))),
-      () => setRawMovies([]),
+      (snapshot) => { setRawMovies(snapshot.docs.map((movieDoc) => ({ id: movieDoc.id, ...movieDoc.data() }))); setMoviesLoaded(true); },
+      () => { setRawMovies([]); setMoviesLoaded(true); },
     );
     const watchLogUnsubscribe = onSnapshot(collection(db, "users", user.uid, "watchLog"), (snapshot) => {
       const logs = Object.fromEntries(snapshot.docs.map((item) => [item.id, item.data()]));
@@ -58,31 +61,38 @@ export default function ListDetailPage() {
 
   useEffect(() => {
     let active = true;
+    if (!moviesLoaded) return () => { active = false; };
+    if (!rawMovies.length) {
+      Promise.resolve().then(() => {
+        if (!active) return;
+        setMovies([]);
+        setLoading(!listLoaded);
+      });
+      return () => { active = false; };
+    }
     const { tmdb } = getLanguageConfig(language);
-    Promise.all(
-      rawMovies.map(async (savedMovie) => {
-        const movieId = savedMovie.movieId || savedMovie.id;
-        const localizedMovie = await fetchAndCacheMovie(movieId, tmdb, region);
-        return localizedMovie
-          ? { ...savedMovie, ...localizedMovie, id: String(movieId) }
-          : { ...savedMovie, id: String(movieId) };
-      }),
-    ).then((nextMovies) => {
+    fetchAndCacheMovies(rawMovies.map((movie) => movie.movieId || movie.id), tmdb, region).then((localizedById) => {
+      const nextMovies = rawMovies.map((savedMovie) => {
+        const movieId = String(savedMovie.movieId || savedMovie.id);
+        const localizedMovie = localizedById.get(movieId);
+        return localizedMovie ? { ...savedMovie, ...localizedMovie, id: movieId } : { ...savedMovie, id: movieId };
+      });
       if (active) {
         setMovies(nextMovies);
-        setLoading(false);
+        setLoading(!(listLoaded && moviesLoaded));
       }
     });
     return () => {
       active = false;
     };
-  }, [language, rawMovies, region]);
+  }, [language, listLoaded, moviesLoaded, rawMovies, region]);
 
   const displayMovies = useMemo(() => movies
     .map((movie) => ({ ...movie, ...(watchLogs[movie.id] || {}), isWatched: watchedIds.includes(movie.id) }))
     .filter((movie) => id !== "wishlist" || wishlistFilter === "all" || !movie.isWatched), [id, movies, watchLogs, watchedIds, wishlistFilter]);
 
-  if (authLoading || !user || loading) return <PageLoading />;
+  if (authLoading || !user) return <PageLoading />;
+  if (loading) return <div className="mx-auto max-w-[1480px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9" aria-label={language === "tr" ? "Liste yükleniyor" : "Loading list"} aria-busy="true"><Skeleton className="mb-4" width="12rem" height="2rem" /><Skeleton className="mb-8" width="18rem" height="1rem" /><div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-4">{Array.from({ length: 10 }, (_, index) => <Skeleton key={index} className="aspect-[2/3]" width="100%" height="auto" />)}</div></div>;
 
   if (!list) {
     return (

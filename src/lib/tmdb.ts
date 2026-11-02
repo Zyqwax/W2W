@@ -100,6 +100,35 @@ export async function fetchAndCacheMovie(
   }
 }
 
+export async function fetchAndCacheMovies(
+  ids: Array<string | number>,
+  language: string = "tr-TR",
+  region: string = "TR",
+): Promise<Map<string, Movie>> {
+  const uniqueIds = [...new Set(ids.map(String))];
+  if (!uniqueIds.length) return new Map();
+  try {
+    const response = await fetch("/api/data/movies/batch", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ids: uniqueIds, locale: language }),
+    });
+    if (!response.ok) throw new Error("Failed to load cached movie batch");
+    const rows = await response.json();
+    const result = new Map<string, Movie>(rows
+      .filter((movie: Movie & { hasLocalization?: boolean }) => movie.hasLocalization)
+      .map((movie: Movie) => [String(movie.id), movie]));
+    const missingIds = uniqueIds.filter((id) => !result.has(id));
+    const fetched = await Promise.all(missingIds.map((id) => fetchAndCacheMovie(id, language, region)));
+    fetched.forEach((movie, index) => { if (movie) result.set(missingIds[index], movie); });
+    return result;
+  } catch (error) {
+    console.error("fetchAndCacheMovies error:", error);
+    const movies = await Promise.all(uniqueIds.map((id) => fetchAndCacheMovie(id, language, region)));
+    return new Map(movies.filter((movie): movie is Movie => Boolean(movie)).map((movie) => [String(movie.id), movie]));
+  }
+}
+
 const providerTypes = ["flatrate", "free", "ads", "rent", "buy"] as const;
 
 function normalizeProviders(data: any, region: string): ProvidersData | null {

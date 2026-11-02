@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef, type ReactNode 
 import { db } from "@/lib/db-client";
 import { collection, query, onSnapshot, type Unsubscribe } from "@/lib/store-client";
 import { useAuth } from "@/context/AuthContext";
-import { fetchAndCacheMovie } from "@/lib/tmdb";
+import { fetchAndCacheMovies } from "@/lib/tmdb";
 import { getLanguageConfig } from "@/lib/i18n";
 import { ensureDefaultLists } from "@/lib/user-lists";
 import type { AppDataContextType, Movie, Friend, UserList } from "@/types";
@@ -85,8 +85,11 @@ export const AppDataProvider = ({ children }: { children: ReactNode }) => {
     let active = true;
     let savedWishlistMovies: any[] = [];
     let watchLog = new Map<string, any>();
+    let wishlistLoaded = false;
+    let watchLogLoaded = false;
     const { tmdb } = getLanguageConfig(language);
     const refreshMovies = async () => {
+      if (!wishlistLoaded || !watchLogLoaded) return;
       // Gather unique movie IDs from wishlist and watchLog
       const allMovieMap = new Map<string, any>();
       savedWishlistMovies.forEach((m) => {
@@ -103,19 +106,19 @@ export const AppDataProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const movieEntries = Array.from(allMovieMap.values());
-      const localizedMovies = await Promise.all(movieEntries.map(async (movieItem) => {
-        const localizedMovie = await fetchAndCacheMovie(movieItem.id, tmdb, region);
-        return localizedMovie ? { ...movieItem, ...localizedMovie } : movieItem;
-      }));
+      const localizedById = await fetchAndCacheMovies(movieEntries.map((movie) => movie.id), tmdb, region);
+      const localizedMovies = movieEntries.map((movieItem) => ({ ...movieItem, ...(localizedById.get(String(movieItem.id)) || {}) }));
       if (!active) return;
       setMovies(localizedMovies);
       setMoviesLoading(false);
     };
     const unsubWishlist = onSnapshot(wishlistQ, (snapshot) => {
+      wishlistLoaded = true;
       savedWishlistMovies = snapshot.docs.map((movieDoc) => ({ id: movieDoc.id, ...movieDoc.data() }));
       refreshMovies();
-    }, () => { if (active) setMoviesLoading(false); });
+    }, () => { wishlistLoaded = true; refreshMovies(); });
     const unsubWatchLog = onSnapshot(watchLogQ, (snapshot) => {
+      watchLogLoaded = true;
       watchLog = new Map(snapshot.docs.map((logDoc) => [logDoc.id, logDoc.data()]));
       watchLogRef.current = watchLog;
       const watchedIds = [...watchLog.entries()]
@@ -143,13 +146,14 @@ export const AppDataProvider = ({ children }: { children: ReactNode }) => {
         const moviesQ = query(collection(db, "users", user.uid, "lists", list.id, "movies"));
         const unsubscribe = onSnapshot(moviesQ, async (snapshot) => {
           const rawMovies = snapshot.docs.map((movieDoc) => ({ id: movieDoc.id, ...movieDoc.data() }));
-          const localizedMovies = await Promise.all(rawMovies.map(async (savedMovie) => {
-            const localizedMovie = await fetchAndCacheMovie(savedMovie.id, tmdb, region);
+          const localizedById = await fetchAndCacheMovies(rawMovies.map((movie) => movie.id), tmdb, region);
+          const localizedMovies = rawMovies.map((savedMovie) => {
+            const localizedMovie = localizedById.get(String(savedMovie.id));
             const log = watchLogRef.current.get(savedMovie.id);
             return localizedMovie
               ? { ...savedMovie, ...localizedMovie, isWatched: Boolean(log?.isWatched) }
               : { ...savedMovie, isWatched: Boolean(log?.isWatched) };
-          }));
+          });
           if (active) setListMovies((current) => ({ ...current, [list.id]: localizedMovies }));
         });
         listMovieUnsubsRef.current.set(list.id, unsubscribe);

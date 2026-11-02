@@ -9,6 +9,7 @@ import { useAppData } from "@/context/AppDataContext";
 import { useRouter } from "next/navigation";
 import PageLoading from "@/components/ui/PageLoading";
 import HorizontalMovieRail from "@/components/HorizontalMovieRail";
+import Skeleton from "@/components/ui/Skeleton";
 
 function PosterCard({ movie, language }) {
   const poster = movie.posterPath || movie.poster_path;
@@ -27,7 +28,7 @@ function PosterCard({ movie, language }) {
 
 export default function Home() {
   const { user, loading, language } = useAuth();
-  const { movies = [], lists, listMovies, watchedMovieIds } = useAppData();
+  const { movies = [], lists, listMovies, watchedMovieIds, moviesLoading } = useAppData();
   const router = useRouter();
   const [spotlightId, setSpotlightId] = useState(null);
   const hasSelectedSpotlight = useRef(false);
@@ -114,19 +115,19 @@ export default function Home() {
             <div><p className="text-xs font-bold uppercase tracking-[0.12em] text-accent">{isEnglish ? "Saved for later" : "Sonra izlemek için"}</p><h2 id="watchlist-title" className="mt-1 text-2xl font-extrabold tracking-tight text-text">{isEnglish ? "My watchlist" : "İzleme listem"}<span className="ml-2 align-middle text-sm font-semibold text-muted">{wishlist.length}</span></h2></div>
             <Link href="/lists/wishlist" className="inline-flex min-h-10 items-center gap-1 text-sm font-bold text-accent hover:underline">{isEnglish ? "See all" : "Tümünü gör"}<ArrowRight size={15} /></Link>
           </header>
-          {wishlist.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{wishlist.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</HorizontalMovieRail> : <div className="rounded-2xl border border-dashed border-border bg-surface/70 px-5 py-7"><p className="font-bold text-text">{isEnglish ? "Your watchlist is ready" : "İzleme listen seni bekliyor"}</p><p className="mt-1 text-sm text-muted">{isEnglish ? "Save films you want to watch later." : "Sonra izlemek istediklerini buraya ekle."}</p><Link href="/search" className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-white"><Plus size={16} />{isEnglish ? "Find a film" : "Film bul"}</Link></div>}
+          {moviesLoading ? <MovieRailSkeleton /> : wishlist.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{wishlist.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</HorizontalMovieRail> : <div className="rounded-2xl border border-dashed border-border bg-surface/70 px-5 py-7"><p className="font-bold text-text">{isEnglish ? "Your watchlist is ready" : "İzleme listen seni bekliyor"}</p><p className="mt-1 text-sm text-muted">{isEnglish ? "Save films you want to watch later." : "Sonra izlemek istediklerini buraya ekle."}</p><Link href="/search" className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-white"><Plus size={16} />{isEnglish ? "Find a film" : "Film bul"}</Link></div>}
         </section>
 
         <section className="min-w-0" aria-labelledby="recent-title">
           <header className="mb-5 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">{isEnglish ? "Your history" : "İzleme geçmişin"}</p><h2 id="recent-title" className="mt-1 text-2xl font-extrabold tracking-tight text-text">{isEnglish ? "Recently watched" : "Son izlediklerin"}</h2></div><Link href="/lists/watched" className="inline-flex min-h-10 items-center gap-1 text-sm font-bold text-accent hover:underline">{isEnglish ? "Full history" : "Tüm geçmiş"}<ArrowRight size={15} /></Link></header>
-          {recent.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{recent.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</HorizontalMovieRail> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Films you mark as watched will appear here." : "İzlendi olarak işaretlediğin filmler burada görünecek."}</p>}
+          {moviesLoading ? <MovieRailSkeleton /> : recent.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{recent.map((movie) => <PosterCard key={movie.id} movie={movie} language={language} />)}</HorizontalMovieRail> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Films you mark as watched will appear here." : "İzlendi olarak işaretlediğin filmler burada görünecek."}</p>}
         </section>
 
         {customLists.map((list) => {
           const items = listMovies?.[list.id] || [];
           return <section key={list.id} className="min-w-0" aria-labelledby={`home-list-${list.id}`}>
             <header className="mb-5 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">{isEnglish ? "Your collection" : "Koleksiyonun"}</p><h2 id={`home-list-${list.id}`} className="mt-1 text-2xl font-extrabold tracking-tight text-text">{list.name}<span className="ml-2 align-middle text-sm font-semibold text-muted">{items.length}</span></h2></div><Link href={`/lists/${list.id}`} className="inline-flex min-h-10 items-center gap-1 text-sm font-bold text-accent hover:underline">{isEnglish ? "See list" : "Listeye git"}<ArrowRight size={15} /></Link></header>
-            {items.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{items.map((movie) => <PosterCard key={movie.id} movie={{ ...movie, isWatched: Boolean(movie.isWatched || watchedMovieIds.includes(String(movie.id))) }} language={language} />)}</HorizontalMovieRail> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Add films from any film page." : "Film sayfalarından bu listeye ekleme yapabilirsin."}</p>}
+            {moviesLoading ? <MovieRailSkeleton /> : items.length ? <HorizontalMovieRail className="-mx-4 flex min-w-0 gap-4 overflow-x-auto px-4 pb-3 scrollbar-hide sm:mx-0 sm:px-0">{items.map((movie) => <PosterCard key={movie.id} movie={{ ...movie, isWatched: Boolean(movie.isWatched || watchedMovieIds.includes(String(movie.id))) }} language={language} />)}</HorizontalMovieRail> : <p className="rounded-2xl bg-surface-2 px-5 py-6 text-sm text-muted">{isEnglish ? "Add films from any film page." : "Film sayfalarından bu listeye ekleme yapabilirsin."}</p>}
           </section>;
         })}
       </div>
@@ -144,4 +145,8 @@ function getWatchedTimestamp(movie) {
   }
   if (value && typeof value === "object" && typeof value.toDate === "function") return value.toDate().getTime();
   return 0;
+}
+
+function MovieRailSkeleton() {
+  return <div className="-mx-4 flex min-w-0 gap-4 overflow-hidden px-4 pb-3 sm:mx-0 sm:px-0" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <div key={index} className="w-[145px] shrink-0 sm:w-[166px]"><Skeleton className="aspect-[2/3]" height="auto" /><Skeleton className="mt-3" width="82%" height="0.9rem" /><Skeleton className="mt-2" width="42%" height="0.7rem" /></div>)}</div>;
 }
