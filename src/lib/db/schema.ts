@@ -136,6 +136,42 @@ export const chats = pgTable("chats", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// TV tracking is keyed separately from movies because TMDB IDs may overlap.
+export const tvSeries = pgTable("tv_series", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  posterPath: text("poster_path"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const userTvSeries = pgTable("user_tv_series", {
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  seriesId: text("series_id").notNull().references(() => tvSeries.id, { onDelete: "cascade" }),
+  status: text("status").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [primaryKey({ columns: [table.userId, table.seriesId] })]);
+
+export const userTvEpisodes = pgTable("user_tv_episodes", {
+  userId: text("user_id").notNull(),
+  seriesId: text("series_id").notNull(),
+  seasonNumber: integer("season_number").notNull(),
+  episodeNumber: integer("episode_number").notNull(),
+  watchedAt: timestamp("watched_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.seriesId, table.seasonNumber, table.episodeNumber] }),
+  foreignKey({ columns: [table.userId, table.seriesId], foreignColumns: [userTvSeries.userId, userTvSeries.seriesId] }).onDelete("cascade"),
+]);
+
+export const listTvSeries = pgTable("list_tv_series", {
+  userId: text("user_id").notNull(),
+  listId: text("list_id").notNull(),
+  seriesId: text("series_id").notNull().references(() => tvSeries.id, { onDelete: "cascade" }),
+  addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.listId, table.seriesId] }),
+  foreignKey({ columns: [table.userId, table.listId], foreignColumns: [lists.userId, lists.id] }).onDelete("cascade"),
+]);
+
 export const messages = pgTable("messages", {
   id: text("id").primaryKey(),
   chatId: text("chat_id").notNull().references(() => chats.id, { onDelete: "cascade" }),

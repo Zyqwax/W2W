@@ -47,7 +47,7 @@ export default function ListCard({ list, movies = [], t, editingId, editingName,
           </div>}
         </div>
         <div className="mt-5 flex items-end justify-between gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-text"><strong>{count}</strong> {t("common.film")}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs text-text"><strong>{count}</strong> {t("lists.title")}</span>
           <div className="flex -space-x-2" aria-hidden="true">{movies.slice(0, 4).map((movie, index) => <span key={movie.id || index} className="relative h-10 w-7 overflow-hidden rounded-md border-2 border-surface bg-surface-2">{posterPath(movie) && <Image src={`https://image.tmdb.org/t/p/w92${posterPath(movie)}`} alt="" fill sizes="28px" className="object-cover" unoptimized />}</span>)}</div>
         </div>
         <div className="mt-3"><Visibility list={list} t={t} /></div>

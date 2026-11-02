@@ -13,6 +13,14 @@ export default function ProfilePage() {
   const router = useRouter();
   const t = (key: string, values?: Record<string, any>) => translate(language, key, values);
   const [preferenceStatus, setPreferenceStatus] = useState("idle");
+  const [series, setSeries] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    fetch("/api/tv?action=library").then((response) => response.ok ? response.json() : Promise.reject()).then((rows) => { if (active) setSeries(rows); }).catch(() => {});
+    return () => { active = false; };
+  }, [user]);
 
   // ── Controller actions ─────────────────────────────────────────────────
   const handlePreferenceChange = async (field, value) => {
@@ -62,6 +70,7 @@ export default function ProfilePage() {
       language={language}
       region={region}
       movies={movies}
+      series={series}
       friends={friends}
       watched={watched}
       wishlist={wishlist}

@@ -1,4 +1,4 @@
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL_CACHE = `w2w-shell-${VERSION}`;
 const IMAGE_CACHE = `w2w-images-${VERSION}`;
 const PUBLIC_DATA_CACHE = `w2w-public-data-${VERSION}`;

@@ -53,6 +53,8 @@ Compose, `db` servisi sağlıklı olduktan sonra Drizzle migration'larını uygu
 
 `NEXT_PUBLIC_TMDB_API_KEY` Next.js istemci koduna build sırasında eklendiğinden bu anahtarı değiştirdikten sonra `docker compose up --build` ile imajı yeniden oluştur.
 
+Dizi verileri sunucu üzerinden TMDB'den alınır. Bunun için isteğe bağlı `TMDB_API_KEY` sunucu ortam değişkenini kullanabilirsin; tanımlanmazsa mevcut `NEXT_PUBLIC_TMDB_API_KEY` kullanılır. Dizi takibi tabloları için uygulama güncellemesinden önce `pnpm db:migrate` çalıştır; Compose kurulumunda migration servisi bunu uygulama başlamadan yapar.
+
 ## Host üzerinde geliştirme
 
 Docker PostgreSQL'ini tek başına başlat:

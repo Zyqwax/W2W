@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { use, useEffect, useMemo, useState } from "react";
 import { collection, doc, getDoc, onSnapshot } from "@/lib/store-client";
 import { useAuth } from "@/context/AuthContext";
@@ -37,6 +39,13 @@ export default function PublicListDetailPage(props: { params: Promise<{ id: stri
   const [rawMovies, setRawMovies] = useState([]);
   const [watchedIds, setWatchedIds] = useState([]);
   const [movies, setMovies] = useState([]);
+  const [series, setSeries] = useState<any[]>([]);
+  useEffect(() => {
+    if (!user || !list || list === false) return;
+    let active = true;
+    fetch(`/api/tv?action=list&ownerId=${encodeURIComponent(targetUid)}&listId=${encodeURIComponent(listId)}`).then((r) => r.ok ? r.json() : Promise.reject()).then((rows) => { if (active) setSeries(rows); }).catch(() => { if (active) setSeries([]); });
+    return () => { active = false; };
+  }, [user, list, listId, targetUid]);
   const [loading, setLoading] = useState(true);
   const [moviesLoading, setMoviesLoading] = useState(true);
   const viewerWatchedSet = useMemo(() => new Set((watchedMovieIds || []).map((movieId) => String(movieId))), [watchedMovieIds]);
@@ -108,7 +117,7 @@ export default function PublicListDetailPage(props: { params: Promise<{ id: stri
   }, [targetUid, user]);
 
   useEffect(() => {
-    if (!list || list === false || listId === "watched") return undefined;
+    if (!list || list === false) return undefined;
     const unsubscribe = onSnapshot(
       collection(db, "users", targetUid, "lists", listId, "movies"),
       (snapshot) => {
@@ -155,5 +164,5 @@ export default function PublicListDetailPage(props: { params: Promise<{ id: stri
   if (authLoading || !user || loading || (list && moviesLoading)) return <LoadingState />;
   if (list === false || !list) return <NotFoundState t={t} />;
 
-  return <PublicListDetailView targetUid={targetUid} ownerName={ownerName} list={list} movies={movies} language={language} t={t} />;
+  return <PublicListDetailView targetUid={targetUid} ownerName={ownerName} list={list} movies={movies} series={series} language={language} t={t} />;
 }

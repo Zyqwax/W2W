@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, Home, Inbox, LayoutList, LogOut, Search, User } from "lucide-react";
+import { Compass, Home, Inbox, LayoutList, LogOut, Search, Tv, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import Avatar from "@/components/ui/Avatar";
 
 const navItems = [
   { key: "home", href: "/", icon: Home },
+  { key: "tv", href: "/tv", icon: Tv },
   { key: "discover", href: "/search", icon: Compass },
   { key: "lists", href: "/lists", icon: LayoutList },
   { key: "profile", href: "/profile", icon: User },
@@ -81,7 +82,7 @@ export default function BottomNav() {
         </Link>
         <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-faint">{language === "en" ? "Your space" : "Alanım"}</p>
         <nav className="flex flex-col gap-1.5" aria-label={t("nav.main")}>
-          {navItems.map((item) => <NavigationItem key={item.href} item={item} pathname={pathname} label={t(`nav.${item.key}`)} />)}
+          {navItems.map((item) => <NavigationItem key={item.href} item={item} pathname={pathname} label={item.key === "tv" ? (language === "tr" ? "Diziler" : "Series") : t(`nav.${item.key}`)} />)}
         </nav>
         <Link href="/messages" className={clsx("mt-2 flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors hover:bg-surface-2", activePath(pathname, "/messages") ? "bg-accent/10 text-accent" : "text-muted hover:text-text")}>
           <Inbox size={18} aria-hidden="true" />
@@ -104,7 +105,7 @@ export default function BottomNav() {
           <Image src="/icon.svg" alt="" width={30} height={30} className="rounded-lg" priority />
           <span className="font-syne text-lg font-extrabold text-text">W2W</span>
         </Link>
-        <div className="hidden min-w-0 flex-1 text-sm font-medium text-muted lg:block">{t(`nav.${navItems.find((item) => activePath(pathname, item.href))?.key || "home"}`)}</div>
+        <div className="hidden min-w-0 flex-1 text-sm font-medium text-muted lg:block">{activePath(pathname, "/tv") ? (language === "tr" ? "Diziler" : "Series") : t(`nav.${navItems.find((item) => activePath(pathname, item.href))?.key || "home"}`)}</div>
         <form onSubmit={submitSearch} role="search" className="relative ml-auto flex h-11 w-[min(48vw,390px)] items-center gap-2 rounded-full border border-border bg-surface px-3 shadow-sm transition focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/10 sm:w-[min(54vw,390px)] lg:ml-0 lg:px-4">
           <Search size={17} className="shrink-0 text-muted" aria-hidden="true" />
           <input value={queryText} onChange={(event) => setQueryText(event.target.value)} type="search" placeholder={t("nav.search")} aria-label={t("nav.search")} className="h-full min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-faint" />
@@ -116,8 +117,8 @@ export default function BottomNav() {
         </Link>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-border bg-surface/95 px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-1 backdrop-blur-xl lg:hidden" aria-label={t("nav.mobile")}>
-        {navItems.map((item) => <NavigationItem key={item.href} compact item={item} pathname={pathname} label={t(`nav.${item.key}`)} />)}
+      <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-border bg-surface/95 px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-1 backdrop-blur-xl lg:hidden" aria-label={t("nav.mobile")}>
+        {navItems.map((item) => <NavigationItem key={item.href} compact item={item} pathname={pathname} label={item.key === "tv" ? (language === "tr" ? "Diziler" : "Series") : t(`nav.${item.key}`)} />)}
       </nav>
     </>
   );

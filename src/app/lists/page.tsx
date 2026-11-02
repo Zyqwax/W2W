@@ -25,6 +25,20 @@ export default function ListsPage() {
   const [editingName, setEditingName] = useState("");
   const [listsLoaded, setListsLoaded] = useState(false);
   const [loadedListIds, setLoadedListIds] = useState<string[]>([]);
+  const [tvLists, setTvLists] = useState<Record<string, any[]>>({});
+
+  useEffect(() => {
+    if (!user || !lists.length) return;
+    let active = true;
+    const library = fetch("/api/tv?action=library").then(r => { if (!r.ok) throw Error(); return r.json(); });
+    Promise.all(lists.map(async (list) => {
+      const isDefault = list.id === "wishlist" || list.id === "watched";
+      const rows = isDefault ? await library : await fetch(`/api/tv?action=list&listId=${encodeURIComponent(list.id)}`).then(r => { if (!r.ok) throw Error(); return r.json(); });
+      const selected = isDefault ? rows.filter((row) => row.state.status === (list.id === "wishlist" ? "watchlist" : "completed")) : rows;
+      return [list.id, selected.map((row) => ({ ...row.series, id: `tv_${row.series.id}` }))] as const;
+    })).then((entries) => { if (active) setTvLists(Object.fromEntries(entries)); }).catch(() => {});
+    return () => { active = false; };
+  }, [user, lists]);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -135,7 +149,7 @@ export default function ListsPage() {
       {createError && <p role="alert" className="mb-5 rounded-xl border border-danger/20 bg-danger/5 px-4 py-3 text-sm font-medium text-danger">{language === "en" ? "The list could not be created. Try again." : "Liste oluşturulamadı. Yeniden dene."}</p>}
       {!listsLoaded ? <div className="space-y-10" aria-label={language === "tr" ? "Listeler yükleniyor" : "Loading lists"} aria-busy="true">{[0, 1].map((section) => <section key={section}><Skeleton className="mb-3" width="11rem" height="1.5rem" /><Skeleton className="mb-5" width="16rem" height="1rem" /><div className="grid gap-4 sm:grid-cols-2">{[0, 1].map((card) => <Skeleton key={card} className="rounded-2xl" width="100%" height="12rem" />)}</div></section>)}</div> : <ListGrid
         lists={lists}
-        listMovies={listMovies}
+        listMovies={Object.fromEntries(lists.map((list) => [list.id, [...(listMovies[list.id] || []), ...(tvLists[list.id] || [])]]))}
         loadedListIds={loadedListIds}
         t={t}
         editingId={editingId}

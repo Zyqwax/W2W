@@ -60,7 +60,7 @@ export default function ListHeader({ list, count, language, t, onEdit }) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-1 text-xs text-text">
               <strong>{count}</strong>
-              <span className="text-muted">{t("common.film")}</span>
+              <span className="text-muted">{language === "tr" ? "içerik" : "items"}</span>
             </span>
             <span
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs ${

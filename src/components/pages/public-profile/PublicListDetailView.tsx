@@ -1,3 +1,4 @@
+import SeriesCard from "@/components/tv/SeriesCard";
 import Link from "next/link";
 import { ArrowLeft, Globe2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
@@ -9,7 +10,15 @@ function listTitle(list, ownerName, t) {
   return list.name || t("lists.customHelp");
 }
 
-export default function PublicListDetailView({ targetUid, ownerName, list, movies, language, t }) {
+export default function PublicListDetailView({
+  targetUid,
+  ownerName,
+  list,
+  movies,
+  series = [],
+  language,
+  t,
+}) {
   const title = listTitle(list, ownerName, t);
 
   return (
@@ -23,24 +32,48 @@ export default function PublicListDetailView({ targetUid, ownerName, list, movie
       </Link>
 
       <header className="mb-8 border-b border-border pb-6">
-        <p className="mb-2 text-sm font-medium text-accent">{t("lists.public")}</p>
-        <h1 className="font-syne text-3xl font-bold text-text md:text-4xl">{title}</h1>
+        <p className="mb-2 text-sm font-medium text-accent">
+          {t("lists.public")}
+        </p>
+        <h1 className="font-syne text-3xl font-bold text-text md:text-4xl">
+          {title}
+        </h1>
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted">
-          <span>{movies.length} {t("common.film")}</span>
-          <Badge tone="accent"><Globe2 size={14} aria-hidden="true" />{t("lists.public")}</Badge>
+          <span>
+            {movies.length + series.length}{" "}
+            {language === "tr" ? "içerik" : "items"}
+          </span>
+          <Badge tone="accent">
+            <Globe2 size={14} aria-hidden="true" />
+            {t("lists.public")}
+          </Badge>
         </div>
       </header>
 
-      <ListMovieGrid
-        movies={movies}
-        language={language}
-        ownerWatchedLabel={`${ownerName || "Arkadaş"} izledi`}
-        viewerWatchedLabel="Sen izledin"
-        viewerListLabel="Senin listende"
-        watchedLabel={t("profile.watched")}
-        t={t}
-        isWatchedList={list.id === "watched"}
-      />
+      {(movies.length > 0 || !series.length) && (
+        <ListMovieGrid
+          movies={movies}
+          language={language}
+          ownerWatchedLabel={`${ownerName || "Arkadaş"} izledi`}
+          viewerWatchedLabel="Sen izledin"
+          viewerListLabel="Senin listende"
+          watchedLabel={t("profile.watched")}
+          t={t}
+          isWatchedList={list.id === "watched"}
+        />
+      )}
+      {series.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-5 text-xl font-bold">
+            {language === "tr" ? "Diziler" : "Series"}
+          </h2>
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+            {series.map(({ series: show }) => (
+              <SeriesCard key={show.id} show={show} tr={language === "tr"} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

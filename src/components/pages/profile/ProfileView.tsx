@@ -100,6 +100,7 @@ export default function ProfileView({
   language,
   region,
   movies,
+  series = [],
   friends,
   watched,
   wishlist,
@@ -116,6 +117,14 @@ export default function ProfileView({
       <div className="mx-auto max-w-[1320px]">
         <ProfileHeader user={user} language={language} movies={recentlyWatched} onShare={onShare} onLogout={onLogout} t={t} />
         <StatsRow movies={movies} watchedCount={watched.length} wishlistCount={wishlist.length} average={avgRating} t={t} />
+        <section className="mt-5 rounded-2xl border border-border bg-surface p-5">
+          <h2 className="text-xl font-bold">{language === "tr" ? "Dizi arşivi" : "Series archive"}</h2>
+          <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted">
+            <Link className="hover:text-accent" href="/lists/wishlist?type=tv">{language === "tr" ? "İzlenecek" : "Watchlist"}: {series.filter((row) => row.state.status === "watchlist").length}</Link>
+            <Link className="hover:text-accent" href="/lists/watched?type=tv">{language === "tr" ? "Tamamlanan" : "Completed"}: {series.filter((row) => row.state.status === "completed").length}</Link>
+            <Link className="hover:text-accent" href="/tv">{language === "tr" ? "Tüm diziler" : "All series"}: {series.length}</Link>
+          </div>
+        </section>
         <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:items-start">
           <div className="min-w-0"><RecentlyWatched movies={recentlyWatched} t={t} /></div>
           <div className="min-w-0 space-y-5">
